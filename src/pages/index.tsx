@@ -1,16 +1,20 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { getCookie, setCookie } from "cookies-next";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LinkSteamModal } from "../components/LinkSteamModal";
-import { Modal } from "../components/Modal";
 import useStore from "../store";
-
+import dynamic from "next/dynamic";
 import { api } from "../utils/api";
 import { createAuthToken } from "../utils/createAuthToken";
+
+const WalletMultiButtonDynamic = dynamic(
+  async () =>
+    (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
+  { ssr: false }
+);
 
 const Home: NextPage = () => {
   const { publicKey, connected, signMessage } = useWallet();
@@ -91,7 +95,7 @@ const Home: NextPage = () => {
           </div>
 
           {!connected ? (
-            <WalletMultiButton />
+            <WalletMultiButtonDynamic />
           ) : !authUser ? (
             // eslint-disable-next-line @typescript-eslint/no-misused-promises
             <button onClick={authHandler}>Sign</button>
