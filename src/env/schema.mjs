@@ -6,6 +6,8 @@ import { z } from "zod";
  */
 export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
+  STEAM_API_KEY: z.string(),
+  SECRET: z.string(),
 });
 
 /**
@@ -15,6 +17,8 @@ export const serverSchema = z.object({
  */
 export const serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
+  STEAM_API_KEY: process.env.STEAM_API_KEY,
+  SECRET: process.env.SECRET,
 };
 
 /**

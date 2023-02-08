@@ -1,11 +1,57 @@
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { getCookie, setCookie } from "cookies-next";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { LinkSteamModal } from "../components/LinkSteamModal";
+import { Modal } from "../components/Modal";
+import useStore from "../store";
 
 import { api } from "../utils/api";
+import { createAuthToken } from "../utils/createAuthToken";
 
 const Home: NextPage = () => {
+  const { publicKey, connected, signMessage } = useWallet();
+  const { authUser, setAuthUser } = useStore();
+  const [showModal, setShowModal] = useState(false);
+
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const { isLoading, mutate: authenticate } = api.auth.login.useMutation({
+    onSuccess(data) {
+      setCookie("auth-jwt", data.authorization, {
+        maxAge: 1000 * 60 * 60 * 12, // 12h
+      });
+      setAuthUser(data.user);
+    },
+    onError(err) {
+      console.error(err);
+    },
+  });
+  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
+    undefined, // no input
+    { enabled: authUser !== undefined && authUser !== null }
+  );
+
+  const { data } = api.user.me.useQuery(
+    undefined, // no input
+    {
+      onSuccess(user) {
+        setAuthUser(user);
+      },
+      enabled: !authUser && !!getCookie("auth-jwt"),
+    }
+  );
+
+  const authHandler = async () => {
+    if (publicKey && signMessage) {
+      const signature = await createAuthToken({ publicKey, signMessage });
+      authenticate({
+        signature,
+      });
+    }
+  };
 
   return (
     <>
@@ -43,6 +89,25 @@ const Home: NextPage = () => {
               </div>
             </Link>
           </div>
+
+          {!connected ? (
+            <WalletMultiButton />
+          ) : !authUser ? (
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            <button onClick={authHandler}>Sign</button>
+          ) : (
+            <>hi {authUser.pubkey}</>
+          )}
+
+          {secretMessage && <span> - {secretMessage}</span>}
+
+          {authUser && authUser.pfp && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={authUser.pfp} alt="steam-pfp" />
+          )}
+
+          <LinkSteamModal showModal={showModal} />
+
           <p className="text-2xl text-white">
             {hello.data ? hello.data.greeting : "Loading tRPC query..."}
           </p>
