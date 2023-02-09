@@ -55,17 +55,23 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req } = opts;
 
   if (req.cookies["auth-jwt"]) {
-    const payload = verifyJWT(req.cookies["auth-jwt"]);
+    try {
+      const payload = verifyJWT(req.cookies["auth-jwt"]);
 
-    const authPayload = authSchema.parse(payload);
-    // TODO: cache this
-    const user = await prisma.user.findUnique({
-      where: { id: authPayload.userId },
-    });
+      const authPayload = authSchema.parse(payload);
+      // TODO: cache this
+      const user = await prisma.user.findUnique({
+        where: { id: authPayload.userId },
+      });
 
-    return createInnerTRPCContext({
-      user,
-    });
+      return createInnerTRPCContext({
+        user,
+      });
+    } catch (e) {
+      return createInnerTRPCContext({
+        user: null,
+      });
+    }
   }
 
   return createInnerTRPCContext({
