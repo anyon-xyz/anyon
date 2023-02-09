@@ -4,6 +4,8 @@ import useStore from "../store";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { shortenAddress } from "../utils/shortenAddress";
 import { useUser } from "../hooks/useUser";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const WalletMultiButtonDynamic = dynamic(
   async () =>
@@ -16,10 +18,12 @@ export const Header = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { connected } = useWallet();
   const { logout, authenticate } = useUser();
+  const router = useRouter();
+  const currentRoute = router.pathname;
 
   return (
-    <header className="flex w-full items-center justify-between border-b border-gray-200 px-16 py-4">
-      <div className="flex items-center gap-6">
+    <header className="flex w-full items-center justify-between border-b border-gray-200 px-4 py-4 md:px-16">
+      <div className="flex items-center gap-3 md:gap-8">
         <Image
           className="rounded-full"
           src="/full-logo.png"
@@ -27,21 +31,38 @@ export const Header = () => {
           width={60}
           height={60}
         />
-        <a>No name yet</a>
+        <Link
+          href={"/"}
+          className={`text-sm font-medium hover:underline sm:text-base ${
+            currentRoute === "/" ? "text-white" : "text-gray-500"
+          }`}
+        >
+          Home
+        </Link>
+        <a className="cursor-not-allowed text-sm font-medium text-gray-500 sm:text-base">
+          Nfts Wrapped
+        </a>
+        <a className="cursor-not-allowed text-sm font-medium text-gray-500 sm:text-base">
+          Inventory
+        </a>
       </div>
 
       {!connected ? (
         <WalletMultiButtonDynamic className="border border-solid" />
       ) : !user ? (
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        <button onClick={authenticate}>Sign</button>
+        <button className="font-bold italic" onClick={authenticate}>
+          Sign
+        </button>
       ) : (
         <div className="flex items-center">
           <div className="flex flex-col ">
-            <span className="font-medium">{shortenAddress(user.pubkey)}</span>
+            <span className="hidden font-medium sm:inline-flex">
+              {shortenAddress(user.pubkey)}
+            </span>
             <span
               onClick={logout}
-              className="ml-auto cursor-pointer text-sm font-extralight italic text-red-300 hover:underline"
+              className="ml-auto cursor-pointer text-base font-bold text-red-300 hover:underline sm:text-sm sm:font-extralight sm:italic"
             >
               logout
             </span>
