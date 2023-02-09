@@ -13,6 +13,7 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
 
 import { api } from "../utils/api";
+import { Toaster } from "react-hot-toast";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const network = WalletAdapterNetwork.Devnet;
@@ -31,6 +32,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <Component {...pageProps} />
+          <Toaster />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
