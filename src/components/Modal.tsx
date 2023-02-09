@@ -1,32 +1,46 @@
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ModalProps {
   title?: string;
   children: React.ReactNode;
-  showModal?: boolean;
+  showModal: boolean;
+  setShowModal: (showModal: boolean) => void;
 }
 
 export const Modal = ({
   title,
   children,
-  showModal: showModalState,
+  showModal,
+  setShowModal,
 }: ModalProps) => {
-  const [showModal, setShowModal] = useState(showModalState || false);
-
   return (
-    <>
-      <button
-        className="mr-1 mb-1 rounded bg-pink-500 px-6 py-3 text-sm font-bold uppercase text-white shadow outline-none transition-all duration-150 ease-linear hover:shadow-lg focus:outline-none active:bg-pink-600"
-        type="button"
-        onClick={() => setShowModal(true)}
-      >
-        Open Modal
-      </button>
-      {showModal ? (
+    <AnimatePresence>
+      {showModal && (
         <>
-          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none">
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.75,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              transition: {
+                ease: "easeOut",
+                duration: 0.2,
+              },
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.75,
+              transition: {
+                ease: "easeIn",
+                duration: 0.2,
+              },
+            }}
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none"
+          >
             <div className="relative my-6 mx-auto w-auto max-w-3xl">
               {/*content*/}
               <div className="relative flex w-full flex-col rounded-lg border-0 bg-black text-white shadow-lg outline-none focus:outline-none">
@@ -58,10 +72,10 @@ export const Modal = ({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
           <div className="fixed inset-0 z-40 bg-black opacity-25"></div>
         </>
-      ) : null}
-    </>
+      )}
+    </AnimatePresence>
   );
 };
