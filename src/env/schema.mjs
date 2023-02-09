@@ -8,6 +8,7 @@ export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
   STEAM_API_KEY: z.string(),
   SECRET: z.string(),
+  REDIS_URL: z.string(),
 });
 
 /**
@@ -19,6 +20,7 @@ export const serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
   STEAM_API_KEY: process.env.STEAM_API_KEY,
   SECRET: process.env.SECRET,
+  REDIS_URL: process.env.REDIS_URL
 };
 
 /**

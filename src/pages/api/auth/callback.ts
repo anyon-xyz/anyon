@@ -4,6 +4,7 @@ import type { UserSteamProfile } from "../../../server/api/passport";
 import { passport, router } from "../../../server/api/passport";
 import { prisma } from "../../../server/db";
 import { verifyJWT } from "../../../server/auth";
+import { redis } from "../../../config/redis";
 
 interface AuthRequest extends NextApiRequest {
   user: UserSteamProfile;
@@ -26,7 +27,7 @@ export default router
 
     const authPayload = authSchema.parse(payload);
 
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: {
         id: authPayload.userId,
       },
@@ -35,6 +36,10 @@ export default router
         pfp: userSteamData._json.avatarfull,
       },
     });
+
+    // update cache
+    const remainingTtl = await redis.ttl(user.id);
+    await redis.set(user.id, JSON.stringify(user), "EX", remainingTtl);
 
     res.redirect("/");
   });

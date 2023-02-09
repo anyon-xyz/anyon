@@ -1,6 +1,6 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { toast } from "react-hot-toast";
 import useStore from "../store";
 import { api } from "../utils/api";
@@ -24,11 +24,19 @@ export const useUser = () => {
 
       // show modal to link steam if user does not have steamid;
       if (!data.user.steamId) {
+        toast("Successful login", {
+          icon: "✅",
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        });
         setShowSteamLinkModal(true);
       }
     },
-    onError(err) {
-      console.error(err);
+    onError() {
+      deleteCookie("auth-jwt");
+      toast.error("Failed to sign in. Refresh the page and try it again");
     },
   });
 
@@ -37,7 +45,9 @@ export const useUser = () => {
     {
       onSuccess(user) {
         setAuthUser(user);
-        console.log(user);
+        if (!user.steamId) {
+          setShowSteamLinkModal(true);
+        }
       },
       onError() {
         deleteCookie("auth-jwt");

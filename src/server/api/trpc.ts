@@ -51,6 +51,8 @@ const authSchema = z.object({
   userId: z.string(),
 });
 
+const TWO_HOUR = 7200;
+
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req } = opts;
 
@@ -59,10 +61,24 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
       const payload = verifyJWT(req.cookies["auth-jwt"]);
 
       const authPayload = authSchema.parse(payload);
-      // TODO: cache this
+
+      const memoize = await redis.get(authPayload.userId);
+      if (memoize) {
+        const user = JSON.parse(memoize) as User;
+
+        return createInnerTRPCContext({
+          user,
+        });
+      }
+
       const user = await prisma.user.findUnique({
         where: { id: authPayload.userId },
       });
+      if (!user) {
+        throw new Error('"user" does not exists');
+      }
+
+      await redis.set(user.id, JSON.stringify(user), "EX", TWO_HOUR);
 
       return createInnerTRPCContext({
         user,
@@ -90,6 +106,7 @@ import superjson from "superjson";
 import { verifyJWT } from "../auth";
 import { z } from "zod";
 import type { User } from "@prisma/client";
+import { redis } from "../../config/redis";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,

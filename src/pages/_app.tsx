@@ -32,7 +32,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <Component {...pageProps} />
-          <Toaster />
+          <Toaster position="bottom-left" />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
