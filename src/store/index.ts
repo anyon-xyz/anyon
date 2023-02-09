@@ -3,17 +3,22 @@ import { create } from "zustand";
 
 type Store = {
   authUser: User | null;
-  pageLoading: boolean;
-  setAuthUser: (user: User) => void;
-  setPageLoading: (isLoading: boolean) => void;
+  setAuthUser: (user: User | null) => void;
+  showSteamLinkModal: boolean;
+  setShowSteamLinkModal: (showModal: boolean) => void;
+  // clean everything
+  logout: () => void;
 };
 
 const useStore = create<Store>((set) => ({
   authUser: null,
-  pageLoading: false,
   setAuthUser: (user) => set((state) => ({ ...state, authUser: user })),
-  setPageLoading: (isLoading) =>
-    set((state) => ({ ...state, pageLoading: isLoading })),
+  showSteamLinkModal: false,
+  setShowSteamLinkModal: (showModal) =>
+    set((state) => ({ ...state, showSteamLinkModal: showModal })),
+  logout: () => {
+    set({});
+  },
 }));
 
 export default useStore;
