@@ -1,53 +1,25 @@
-import { useWallet } from "@solana/wallet-adapter-react";
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { LinkSteamModal } from "../components/LinkSteamModal";
 import useStore from "../store";
-import dynamic from "next/dynamic";
 import { api } from "../utils/api";
-import { createAuthToken } from "../utils/createAuthToken";
 import { Header } from "../components/Header";
-import { useUser } from "../hooks/useUser";
-
-const WalletMultiButtonDynamic = dynamic(
-  async () =>
-    (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
-  { ssr: false }
-);
+import { useInventory } from "../hooks/useInventory";
+import Image from "next/image";
+import { getStickerImageFromCsgoItem } from "../utils/getStickerImageFromCsgoItem";
+import { Puff } from "react-loading-icons";
 
 const Home: NextPage = () => {
-  const { publicKey, connected, signMessage } = useWallet();
-  const { authUser, setAuthUser, showSteamLinkModal, setShowSteamLinkModal } =
+  const { authUser, showSteamLinkModal, setShowSteamLinkModal, csgoInventory } =
     useStore();
+  const {} = useInventory();
 
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
-  const { isLoading, mutate: authenticate } = api.auth.login.useMutation({
-    onSuccess(data) {
-      setCookie("auth-jwt", data.authorization, {
-        maxAge: 1000 * 60 * 60 * 12, // 12h
-      });
-      setAuthUser(data.user);
-    },
-    onError(err) {
-      console.error(err);
-    },
-  });
+
   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
     undefined, // no input
     { enabled: authUser !== undefined && authUser !== null }
   );
-
-  const authHandler = async () => {
-    if (publicKey && signMessage) {
-      const signature = await createAuthToken({ publicKey, signMessage });
-      authenticate({
-        signature,
-      });
-    }
-  };
 
   return (
     <>
@@ -69,74 +41,66 @@ const Home: NextPage = () => {
               soon available for other games
             </span>
           </div>
-          <div className="md grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8 lg:grid-cols-4">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
 
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
+          {csgoInventory ? (
+            <div className="md grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8 lg:grid-cols-4">
+              {csgoInventory.descriptions
+                .filter((item) => item.tradable === 1)
+                .slice(0, 12)
+                .map((item) => (
+                  <div
+                    key={item.classid}
+                    className="flex max-w-xs flex-1 flex-col gap-4 rounded-xl bg-white/10 p-4 text-white"
+                  >
+                    <h3
+                      onClick={() => window.open(item.market_actions[0]?.link)}
+                      className="cursor-pointer text-lg font-bold hover:underline"
+                    >
+                      {item.name}
+                    </h3>
 
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
+                    <div className="flex flex-col items-center justify-center">
+                      <Image
+                        key={item.classid}
+                        width={150}
+                        height={150}
+                        src={`https://steamcommunity-a.akamaihd.net/economy/image/${item.icon_url_large}`}
+                        alt="item"
+                      />
+                      {/* stickers */}
 
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
+                      {item.descriptions && (
+                        <div className="mt-2 flex">
+                          {getStickerImageFromCsgoItem(item.descriptions).map(
+                            (imgUrl, i) => (
+                              <Image
+                                key={i}
+                                width={40}
+                                height={40}
+                                src={imgUrl}
+                                alt="item"
+                              />
+                            )
+                          )}
+                        </div>
+                      )}
+                    </div>
 
-          {!connected ? (
-            <WalletMultiButtonDynamic />
-          ) : !authUser ? (
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            <button onClick={authHandler}>Sign</button>
+                    {/* <div className="text-base">
+                      Just the basics - Everything you need to know to set up
+                      your database and authentication.
+                    </div> */}
+
+                    <button className="mt-auto rounded-xl bg-slate-400 p-2 transition delay-150 duration-300  hover:-translate-y-1 hover:bg-slate-600 ">
+                      wrap into nft
+                    </button>
+                  </div>
+                ))}
+            </div>
           ) : (
-            <>hi {authUser.pubkey}</>
+            <div className="flex items-center justify-center">
+              <Puff className="mt-4" />
+            </div>
           )}
 
           {secretMessage && <span> - {secretMessage}</span>}

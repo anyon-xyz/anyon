@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client";
 import { create } from "zustand";
+import type { CsgoInventory } from "../server/api/services/steam-service";
 
 type Store = {
   authUser: User | null;
@@ -8,6 +9,8 @@ type Store = {
   setShowSteamLinkModal: (showModal: boolean) => void;
   // clean everything
   logout: () => void;
+  csgoInventory: CsgoInventory | null;
+  setCsgoInventory: (csgoInventory: CsgoInventory) => void;
 };
 
 const useStore = create<Store>((set) => ({
@@ -19,6 +22,9 @@ const useStore = create<Store>((set) => ({
   logout: () => {
     set({});
   },
+  csgoInventory: null,
+  setCsgoInventory: (csgoInventory) =>
+    set((state) => ({ ...state, csgoInventory })),
 }));
 
 export default useStore;
