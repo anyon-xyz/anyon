@@ -17,10 +17,11 @@ model Example {
 }
 
 model User {
-    id          String @id @default(uuid())
-    pubkey      String @unique
-    steamId     String? @unique
-    pfp         String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id              String @id @default(uuid())
+    pubkey          String @unique
+    steamId         String? @unique
+    steamTradeUrl   String? 
+    pfp             String?
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
 }

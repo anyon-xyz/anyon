@@ -13,6 +13,7 @@ export const useUser = () => {
   const setShowSteamLinkModal = useStore(
     (state) => state.setShowSteamLinkModal
   );
+  const setShowProfileModal = useStore((state) => state.setShowProfileModal);
   const authUser = useStore((state) => state.authUser);
 
   const { isLoading: isSigning, mutate: signIn } = api.auth.login.useMutation({
@@ -39,6 +40,25 @@ export const useUser = () => {
       toast.error("Failed to sign in. Refresh the page and try it again");
     },
   });
+
+  // TODO: validate the link
+  const { mutate: updateTradeOfferUrl } =
+    api.user.updateTradeOfferUrl.useMutation({
+      onSuccess(data) {
+        toast("'steamTradeUrl' updated", {
+          icon: "✅",
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        });
+        setAuthUser(data);
+        setShowProfileModal(false);
+      },
+      onError() {
+        toast.error("Failed to update. Refresh the page and try it again");
+      },
+    });
 
   const { isFetching: isFetchingUser } = api.user.me.useQuery(
     undefined, // no input
@@ -85,5 +105,6 @@ export const useUser = () => {
     isSigning,
     logout,
     isFetchingUser,
+    updateTradeOfferUrl,
   };
 };
