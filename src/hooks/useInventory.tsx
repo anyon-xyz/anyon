@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import useStore from "../store";
 import { api } from "../utils/api";
 
@@ -13,7 +14,14 @@ export const useInventory = () => {
           setCsgoInventory(data);
         },
         onError(err) {
-          console.log("here", err);
+          console.log("err", err);
+          toast("Fail to fetch csgo inventory", {
+            icon: "❌",
+            style: {
+              background: "#333",
+              color: "#fff",
+            },
+          });
         },
         enabled:
           authUser !== undefined && authUser !== null && !!authUser.steamId,

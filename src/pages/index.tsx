@@ -2,24 +2,24 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { LinkSteamModal } from "../components/LinkSteamModal";
 import useStore from "../store";
-import { api } from "../utils/api";
 import { Header } from "../components/Header";
 import { useInventory } from "../hooks/useInventory";
 import Image from "next/image";
-import { getStickerImageFromCsgoItem } from "../utils/getStickerImageFromCsgoItem";
 import { Puff } from "react-loading-icons";
+import { ProfileModal } from "../components/ProfileModal";
+import Link from "next/link";
+import { ItemCard } from "../components/ItemCard";
 
 const Home: NextPage = () => {
-  const { authUser, showSteamLinkModal, setShowSteamLinkModal, csgoInventory } =
-    useStore();
-  const {} = useInventory();
-
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: authUser !== undefined && authUser !== null }
-  );
+  const {
+    authUser,
+    showSteamLinkModal,
+    setShowSteamLinkModal,
+    csgoInventory,
+    showProfileModal,
+    setShowProfileModal,
+  } = useStore();
+  const { isLoadingInventory } = useInventory();
 
   return (
     <>
@@ -42,82 +42,54 @@ const Home: NextPage = () => {
             </span>
           </div>
 
-          {csgoInventory ? (
+          {authUser && csgoInventory && (
             <div className="md grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8 lg:grid-cols-4">
               {csgoInventory.descriptions
                 .filter((item) => item.tradable === 1)
                 .slice(0, 12)
                 .map((item) => (
-                  <div
-                    key={item.classid}
-                    className="flex max-w-xs flex-1 flex-col gap-4 rounded-xl bg-white/10 p-4 text-white"
-                  >
-                    <h3
-                      onClick={() => window.open(item.market_actions[0]?.link)}
-                      className="cursor-pointer text-lg font-bold hover:underline"
-                    >
-                      {item.name}
-                    </h3>
-
-                    <div className="flex flex-col items-center justify-center">
-                      <Image
-                        key={item.classid}
-                        width={150}
-                        height={150}
-                        src={`https://steamcommunity-a.akamaihd.net/economy/image/${item.icon_url_large}`}
-                        alt="item"
-                      />
-                      {/* stickers */}
-
-                      {item.descriptions && (
-                        <div className="mt-2 flex">
-                          {getStickerImageFromCsgoItem(item.descriptions).map(
-                            (imgUrl, i) => (
-                              <Image
-                                key={i}
-                                width={40}
-                                height={40}
-                                src={imgUrl}
-                                alt="item"
-                              />
-                            )
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* <div className="text-base">
-                      Just the basics - Everything you need to know to set up
-                      your database and authentication.
-                    </div> */}
-
-                    <button className="mt-auto rounded-xl bg-slate-400 p-2 transition delay-150 duration-300  hover:-translate-y-1 hover:bg-slate-600 ">
-                      wrap into nft
-                    </button>
-                  </div>
+                  <ItemCard key={item.classid} item={item} />
                 ))}
             </div>
-          ) : (
+          )}
+
+          {authUser && isLoadingInventory && (
             <div className="flex items-center justify-center">
               <Puff className="mt-4" />
             </div>
           )}
 
-          {secretMessage && <span> - {secretMessage}</span>}
+          {!authUser && <>sign in to wrap steam skins</>}
 
-          {authUser && authUser.pfp && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={authUser.pfp} alt="steam-pfp" />
+          {authUser && !authUser.steamId && (
+            <Link
+              className="mr-1 mb-1 mt-6 flex w-full max-w-xl items-center justify-center gap-6 rounded bg-gray-600 px-6 py-3 text-sm font-bold uppercase text-white shadow outline-none transition-all duration-150 ease-linear hover:bg-gray-700 hover:shadow-lg focus:outline-none active:bg-gray-700"
+              href="/api/auth/login"
+            >
+              <Image
+                src="/steam-logo.webp"
+                alt="steam-logo"
+                width={30}
+                height={30}
+              />
+              Link your steam account to wrap skins into nfts
+            </Link>
           )}
+
+          {authUser &&
+            authUser.steamId &&
+            !csgoInventory &&
+            !isLoadingInventory && <div>fail to load csgo inventory</div>}
 
           <LinkSteamModal
             showModal={showSteamLinkModal}
             setShowModal={setShowSteamLinkModal}
           />
 
-          <p className="text-2xl text-white">
-            {hello.data ? hello.data.greeting : "Loading tRPC query..."}
-          </p>
+          <ProfileModal
+            showModal={showProfileModal}
+            setShowModal={setShowProfileModal}
+          />
         </div>
       </main>
     </>
