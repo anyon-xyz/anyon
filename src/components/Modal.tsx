@@ -6,6 +6,8 @@ interface ModalProps {
   children: React.ReactNode;
   showModal: boolean;
   setShowModal: (showModal: boolean) => void;
+  width?: "auto" | string;
+  onSaveSubmit?: () => void;
 }
 
 export const Modal = ({
@@ -13,6 +15,8 @@ export const Modal = ({
   children,
   showModal,
   setShowModal,
+  width = "auto",
+  onSaveSubmit,
 }: ModalProps) => {
   return (
     <AnimatePresence>
@@ -41,7 +45,7 @@ export const Modal = ({
             }}
             className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none"
           >
-            <div className="relative my-6 mx-auto w-auto max-w-3xl">
+            <div className={`relative my-6 mx-auto ${width} max-w-3xl`}>
               {/*content*/}
               <div className="relative flex w-full flex-col rounded-lg border-0 bg-black text-white shadow-lg outline-none focus:outline-none">
                 {/*header*/}
@@ -62,6 +66,18 @@ export const Modal = ({
                 {children}
                 {/*footer*/}
                 <div className="flex items-center justify-end rounded-b border-t border-solid border-slate-700 p-6">
+                  {onSaveSubmit && (
+                    <button
+                      className="text-white-500 mr-1 mb-1 rounded bg-green-700 px-6 py-2 text-sm font-bold uppercase outline-none transition-all duration-150 ease-linear hover:bg-green-900 focus:outline-none"
+                      type="button"
+                      onClick={() => {
+                        setShowModal(false);
+                        onSaveSubmit();
+                      }}
+                    >
+                      Save
+                    </button>
+                  )}
                   <button
                     className="background-transparent mr-1 mb-1 px-6 py-2 text-sm font-bold uppercase text-red-500 outline-none transition-all duration-150 ease-linear focus:outline-none"
                     type="button"
