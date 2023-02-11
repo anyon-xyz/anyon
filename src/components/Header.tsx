@@ -6,6 +6,7 @@ import { shortenAddress } from "../utils/shortenAddress";
 import { useUser } from "../hooks/useUser";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { BsGear } from "react-icons/bs";
 
 const WalletMultiButtonDynamic = dynamic(
   async () =>
@@ -15,7 +16,7 @@ const WalletMultiButtonDynamic = dynamic(
 
 export const Header = () => {
   const user = useStore((state) => state.authUser);
-  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const setShowProfileModal = useStore((state) => state.setShowProfileModal);
   const { connected } = useWallet();
   const { logout, authenticate } = useUser();
   const router = useRouter();
@@ -77,6 +78,11 @@ export const Header = () => {
               alt="steam-pfp"
             />
           )}
+
+          <BsGear
+            onClick={() => setShowProfileModal(true)}
+            className="ml-4 cursor-pointer transition duration-150 hover:fill-slate-400"
+          />
         </div>
       )}
     </header>
