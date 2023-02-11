@@ -11,6 +11,8 @@ type Store = {
   logout: () => void;
   csgoInventory: CsgoInventory | null;
   setCsgoInventory: (csgoInventory: CsgoInventory) => void;
+  showProfileModal: boolean;
+  setShowProfileModal: (showProfileModal: boolean) => void;
 };
 
 const useStore = create<Store>((set) => ({
@@ -25,6 +27,9 @@ const useStore = create<Store>((set) => ({
   csgoInventory: null,
   setCsgoInventory: (csgoInventory) =>
     set((state) => ({ ...state, csgoInventory })),
+  showProfileModal: false,
+  setShowProfileModal: (showModal) =>
+    set((state) => ({ ...state, showProfileModal: showModal })),
 }));
 
 export default useStore;
