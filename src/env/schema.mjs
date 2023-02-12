@@ -6,7 +6,13 @@ import { z } from "zod";
  */
 export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
+  DATABASE_URL: z.string(),
   STEAM_API_KEY: z.string(),
+  STEAM_ACCOUNT_NAME: z.string(),
+  STEAM_PASSWORD: z.string(),
+  STEAM_SHARED_SECRET: z.string(),
+  STEAM_IDENTITY_SECRET: z.string(),
+  STEAM_MACHINE_NAME: z.string().optional(),
   SECRET: z.string(),
   REDIS_URL: z.string(),
 });
@@ -18,7 +24,13 @@ export const serverSchema = z.object({
  */
 export const serverEnv = {
   NODE_ENV: process.env.NODE_ENV,
+  DATABASE_URL: process.env.DATABASE_URL,
   STEAM_API_KEY: process.env.STEAM_API_KEY,
+  STEAM_ACCOUNT_NAME: process.env.STEAM_ACCOUNT_NAME,
+  STEAM_PASSWORD: process.env.STEAM_PASSWORD,
+  STEAM_SHARED_SECRET: process.env.STEAM_SHARED_SECRET,
+  STEAM_IDENTITY_SECRET: process.env.STEAM_IDENTITY_SECRET,
+  STEAM_MACHINE_NAME: process.env.STEAM_MACHINE_NAME,
   SECRET: process.env.SECRET,
   REDIS_URL: process.env.REDIS_URL
 };
