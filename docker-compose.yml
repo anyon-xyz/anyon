@@ -41,4 +41,4 @@ volumes:
 
 secrets:
   PAYER_SECRETS:
-    file: ${PAYER_SECRETS}
+    file: ${PAYER_KEYPAIR}
