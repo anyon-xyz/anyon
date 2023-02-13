@@ -21,6 +21,24 @@ services:
     ports:
       - "6379:6379"
 
+  switchboard-oracle:
+    container_name: switchboard-oracle
+    image: "switchboardlabs/node:dev-v2-RC_01_17_23_16_22"    
+    secrets:
+      - PAYER_SECRETS
+    environment:
+      - LIVE=1
+      - CLUSTER=${CLUSTER}
+      - SOLANA_CLUSTER=${CLUSTER}
+      - HEARTBEAT_INTERVAL=30 # Seconds
+      - ORACLE_KEY=${ORACLE_KEY}
+      - RPC_URL=${RPC_URL}
+      - TASK_RUNNER_SOLANA_RPC=https://api.mainnet-beta.solana.com
+
 volumes:
   pg-data:
   redis:
+
+secrets:
+  PAYER_SECRETS:
+    file: ${PAYER_SECRETS}
