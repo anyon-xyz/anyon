@@ -4,11 +4,11 @@ import b58 from "bs58";
 import { TextDecoder } from "text-encoding";
 import { setCookie } from "cookies-next";
 import { signJWT } from "./jwt";
-import type { User } from "@prisma/client";
-import { prisma } from "../db";
+import type { PrismaClient, User } from "@prisma/client";
 
 export const authUser = async (
-  signature: string
+  signature: string,
+  prismaClient: PrismaClient
 ): Promise<{ authorization: string; user: User }> => {
   const [pubkey, msg, sig] = signature.split(".");
 
@@ -35,10 +35,10 @@ export const authUser = async (
     throw new Error("Expired signature");
   }
 
-  let user = await prisma.user.findFirst({ where: { pubkey: pubkey } });
+  let user = await prismaClient.user.findFirst({ where: { pubkey: pubkey } });
 
   if (!user) {
-    user = await prisma.user.create({
+    user = await prismaClient.user.create({
       data: {
         pfp: null,
         pubkey,

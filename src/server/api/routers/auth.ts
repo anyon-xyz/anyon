@@ -6,5 +6,5 @@ import { authUser } from "../../auth";
 export const authRouter = createTRPCRouter({
   login: publicProcedure
     .input(z.object({ signature: z.string() }))
-    .mutation(({ input }) => authUser(input.signature)),
+    .mutation(({ input, ctx }) => authUser(input.signature, ctx.prisma)),
 });
