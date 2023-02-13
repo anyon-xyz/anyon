@@ -22,6 +22,20 @@ model User {
     steamId         String? @unique
     steamTradeUrl   String? 
     pfp             String?
+    wrappedItems    WrappedItem[]
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
+}
+
+// This is just to know who was the user who wrapped the skin but not necessarily  
+// the owner of the skin because he can sell it after wrapped
+model WrappedItem {
+    id              String @id @default(uuid())
+    appId           Int
+    classId         String
+    instanceId      String
+    marketHashName  String
+    mintNft         String?
+    userId          String
+    user            User     @relation(fields: [userId], references: [id])
 }
