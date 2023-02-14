@@ -24,7 +24,3 @@ services:
 volumes:
   pg-data:
   redis:
-
-secrets:
-  PAYER_SECRETS:
-    file: ${PAYER_KEYPAIR}
