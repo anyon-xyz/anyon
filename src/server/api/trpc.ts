@@ -17,7 +17,7 @@
  */
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 
-import { prisma } from "../db";
+import { prisma, redis } from "../db";
 
 type CreateContextOptions = {
   user: User | null;
@@ -37,6 +37,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     user: opts.user,
     prisma,
+    redis,
   };
 };
 
@@ -106,7 +107,6 @@ import superjson from "superjson";
 import { verifyJWT } from "../auth";
 import { z } from "zod";
 import type { User } from "@prisma/client";
-import { redis } from "../../config/redis";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,

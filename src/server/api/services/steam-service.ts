@@ -1,4 +1,4 @@
-import { redis } from "../../../config/redis";
+import { redis } from "../../db";
 import { request } from "../../../utils/fetch";
 
 export interface Asset {

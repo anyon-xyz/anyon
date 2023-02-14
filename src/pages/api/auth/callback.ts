@@ -4,7 +4,7 @@ import type { UserSteamProfile } from "../../../server/api/passport";
 import { passport, router } from "../../../server/api/passport";
 import { prisma } from "../../../server/db";
 import { verifyJWT } from "../../../server/auth";
-import { redis } from "../../../config/redis";
+import { redis } from "../../../server/db";
 
 interface AuthRequest extends NextApiRequest {
   user: UserSteamProfile;
