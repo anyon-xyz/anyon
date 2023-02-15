@@ -1,4 +1,4 @@
-import { redis } from "../../db";
+import type { Redis } from "ioredis";
 import { request } from "../../../utils/fetch";
 
 export interface Asset {
@@ -72,6 +72,7 @@ const MAX_COUNT = 500;
 
 // http://steamcommunity.com/profiles/<STEAMID>/inventory/json/<APPID>/2
 export const getCsgoInventory = async (
+  redis: Redis,
   steamId: string,
   // TODO: implement
   forceFetch?: boolean
