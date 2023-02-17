@@ -1,28 +1,22 @@
-# Create T3 App
+### 🕳️ Anyon
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A platform for wrapping Steam skins into NFTs on the Solana blockchain
 
-## What's next? How do I make an app with this?
+The goal is to take out centralized resale sites of skins that buy at prices far below the market and keep it up to you. You can now wrap and sell your Steam item for SOL or USDC.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+### How it will works
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+For wrapping in NFT, the user will transfer his item to our Steam escrow, then will get a link to mint that NFT
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+To get the item back to your Steam, the item itself needs to be unlocked (after 7 days since the last trade) and then the user will burn this NFT and we will send the item from our Steam escrow to the user's Steam.
 
-## Learn More
+Also, once wrapped, the user will be able to sell the NFT for SOL/USDC and will be listed in marketplaces like MagicEden and Hyperspace.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+### Mvp goals
+  * Wrap and unwrap csgo skins
+  * List wrapped skins in solana marketplaces
+  * ...
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### License
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+This project is distributed under the [MIT license](LICENSE)
