@@ -7,7 +7,7 @@ export const steamRouter = createTRPCRouter({
       throw new Error("Steam account not linked yet");
     }
 
-    const invetory = await getCsgoInventory(ctx.user.steamId);
+    const invetory = await getCsgoInventory(ctx.redis, ctx.user.steamId);
 
     return invetory;
   }),
