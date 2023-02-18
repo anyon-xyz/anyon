@@ -4,6 +4,16 @@ A platform for wrapping Steam skins into NFTs on the Solana blockchain
 
 The goal is to take out centralized resale sites of skins that buy at prices far below the market and keep it up to you since you cant sell it for money outside of steam. You can now wrap and sell your item for SOL, USDC or any spl token.
 
+## Running locally
+
+- Create `.env` file
+
+```sh
+$ docker-compose up --build -d
+$ yarn dev
+```
+
+
 ## How it will works
   - Wrapping - The user will transfer their item to our Steam escrow and then mint a new NFT for that item
 
