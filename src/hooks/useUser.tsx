@@ -2,26 +2,26 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { useCallback } from "react";
 import { toast } from "react-hot-toast";
-import useStore from "../store";
+import { resetAllStores, useStore } from "../store";
 import { api } from "../utils/api";
 import { createAuthToken } from "../utils/createAuthToken";
 
 export const useUser = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { publicKey, signMessage, disconnect } = useWallet();
-  const setAuthUser = useStore((state) => state.setAuthUser);
+  const setUser = useStore((state) => state.setUser);
   const setShowSteamLinkModal = useStore(
     (state) => state.setShowSteamLinkModal
   );
   const setShowProfileModal = useStore((state) => state.setShowProfileModal);
-  const authUser = useStore((state) => state.authUser);
+  const user = useStore((state) => state.user);
 
   const { isLoading: isSigning, mutate: signIn } = api.auth.login.useMutation({
     onSuccess(data) {
       setCookie("auth-jwt", data.authorization, {
         maxAge: 1000 * 60 * 60 * 12, // 12h
       });
-      setAuthUser(data.user);
+      setUser(data.user);
 
       // show modal to link steam if user does not have steamid;
       if (!data.user.steamId) {
@@ -52,7 +52,7 @@ export const useUser = () => {
             color: "#fff",
           },
         });
-        setAuthUser(data);
+        setUser(data);
         setShowProfileModal(false);
       },
       onError() {
@@ -64,7 +64,7 @@ export const useUser = () => {
     undefined, // no input
     {
       onSuccess(user) {
-        setAuthUser(user);
+        setUser(user);
         if (!user.steamId) {
           setShowSteamLinkModal(true);
         }
@@ -76,7 +76,7 @@ export const useUser = () => {
         );
       },
       // on error -> reset auth-jwt cookie
-      enabled: !authUser && !!getCookie("auth-jwt"),
+      enabled: !user && !!getCookie("auth-jwt"),
       retry: false,
       refetchOnWindowFocus: false,
     }
@@ -95,10 +95,10 @@ export const useUser = () => {
     disconnect()
       .then(() => {
         deleteCookie("auth-jwt");
-        setAuthUser(null);
+        resetAllStores();
       })
       .catch(console.error);
-  }, [disconnect, setAuthUser]);
+  }, [disconnect]);
 
   return {
     authenticate,

@@ -1,24 +1,17 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { LinkSteamModal } from "../components/LinkSteamModal";
-import useStore from "../store";
+import { useStore } from "../store";
 import { Header } from "../components/Header";
 import { useInventory } from "../hooks/useInventory";
 import Image from "next/image";
-import { Puff } from "react-loading-icons";
+// import { Puff } from "react-loading-icons";
 import { ProfileModal } from "../components/ProfileModal";
 import Link from "next/link";
-import { ItemCard } from "../components/ItemCard";
+import { Inventory } from "../components/Inventory";
 
 const Home: NextPage = () => {
-  const {
-    authUser,
-    showSteamLinkModal,
-    setShowSteamLinkModal,
-    csgoInventory,
-    showProfileModal,
-    setShowProfileModal,
-  } = useStore();
+  const { user, csgoInventory } = useStore();
   const { isLoadingInventory } = useInventory();
 
   return (
@@ -42,26 +35,17 @@ const Home: NextPage = () => {
             </span>
           </div>
 
-          {authUser && csgoInventory && (
-            <div className="md grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-8 lg:grid-cols-4">
-              {csgoInventory.descriptions
-                .filter((item) => item.tradable === 1)
-                .slice(0, 12)
-                .map((item) => (
-                  <ItemCard key={item.classid} item={item} />
-                ))}
-            </div>
-          )}
+          {user && user.steamId && <Inventory />}
 
-          {authUser && isLoadingInventory && (
+          {/* {user && isLoadingInventory && (
             <div className="flex items-center justify-center">
               <Puff className="mt-4" />
             </div>
-          )}
+          )} */}
 
-          {!authUser && <>sign in to wrap steam skins</>}
+          {!user && <>sign in to wrap steam skins</>}
 
-          {authUser && !authUser.steamId && (
+          {user && !user.steamId && (
             <Link
               className="mr-1 mb-1 mt-6 flex w-full max-w-xl items-center justify-center gap-6 rounded bg-gray-600 px-6 py-3 text-sm font-bold uppercase text-white shadow outline-none transition-all duration-150 ease-linear hover:bg-gray-700 hover:shadow-lg focus:outline-none active:bg-gray-700"
               href="/api/auth/login"
@@ -76,20 +60,13 @@ const Home: NextPage = () => {
             </Link>
           )}
 
-          {authUser &&
-            authUser.steamId &&
-            !csgoInventory &&
-            !isLoadingInventory && <div>fail to load csgo inventory</div>}
+          {user && user.steamId && !csgoInventory && !isLoadingInventory && (
+            <div>fail to load csgo inventory</div>
+          )}
 
-          <LinkSteamModal
-            showModal={showSteamLinkModal}
-            setShowModal={setShowSteamLinkModal}
-          />
+          <LinkSteamModal />
 
-          <ProfileModal
-            showModal={showProfileModal}
-            setShowModal={setShowProfileModal}
-          />
+          <ProfileModal />
         </div>
       </main>
     </>

@@ -1,10 +1,10 @@
 import { toast } from "react-hot-toast";
-import useStore from "../store";
+import { useStore } from "../store";
 import { api } from "../utils/api";
 
 export const useInventory = () => {
   const setCsgoInventory = useStore((state) => state.setCsgoInventory);
-  const authUser = useStore((state) => state.authUser);
+  const user = useStore((state) => state.user);
 
   const { isFetching: isFetchingInventory, isLoading: isLoadingInventory } =
     api.steam.getCsgoInventory.useQuery(
@@ -23,8 +23,7 @@ export const useInventory = () => {
             },
           });
         },
-        enabled:
-          authUser !== undefined && authUser !== null && !!authUser.steamId,
+        enabled: user !== undefined && user !== null && !!user.steamId,
         retry: 0,
         cacheTime: 5,
       }
