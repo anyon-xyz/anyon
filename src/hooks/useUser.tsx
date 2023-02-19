@@ -1,37 +1,50 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
+import { deleteCookie, setCookie } from "cookies-next";
 import { useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { resetAllStores, useStore } from "../store";
 import { api } from "../utils/api";
+import { MAX_AGE_MS } from "../utils/constants";
 import { createAuthToken } from "../utils/createAuthToken";
+
+export const useMeQuery = () => {
+  const meQuery = api.user.me.useQuery(undefined, {
+    retry(failureCount) {
+      return failureCount > 3;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  return meQuery;
+};
 
 export const useUser = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { publicKey, signMessage, disconnect } = useWallet();
-  const setUser = useStore((state) => state.setUser);
-  const setShowSteamLinkModal = useStore(
-    (state) => state.setShowSteamLinkModal
-  );
+  const { setShowSteamLinkModal, setUser } = useStore((state) => ({
+    setShowSteamLinkModal: state.setShowSteamLinkModal,
+    setUser: state.setUser,
+  }));
+
   const setShowProfileModal = useStore((state) => state.setShowProfileModal);
-  const user = useStore((state) => state.user);
 
   const { isLoading: isSigning, mutate: signIn } = api.auth.login.useMutation({
     onSuccess(data) {
       setCookie("auth-jwt", data.authorization, {
-        maxAge: 1000 * 60 * 60 * 12, // 12h
+        maxAge: MAX_AGE_MS, // 12h
       });
       setUser(data.user);
 
+      toast("Successful login", {
+        icon: "✅",
+        style: {
+          background: "#333",
+          color: "#fff",
+        },
+      });
+
       // show modal to link steam if user does not have steamid;
       if (!data.user.steamId) {
-        toast("Successful login", {
-          icon: "✅",
-          style: {
-            background: "#333",
-            color: "#fff",
-          },
-        });
         setShowSteamLinkModal(true);
       }
     },
@@ -60,28 +73,6 @@ export const useUser = () => {
       },
     });
 
-  const { isFetching: isFetchingUser } = api.user.me.useQuery(
-    undefined, // no input
-    {
-      onSuccess(user) {
-        setUser(user);
-        if (!user.steamId) {
-          setShowSteamLinkModal(true);
-        }
-      },
-      onError() {
-        deleteCookie("auth-jwt");
-        toast.error(
-          "Failed to fetch current user. Refresh the page and try sign in again"
-        );
-      },
-      // on error -> reset auth-jwt cookie
-      enabled: !user && !!getCookie("auth-jwt"),
-      retry: false,
-      refetchOnWindowFocus: false,
-    }
-  );
-
   const authenticate = useCallback(async () => {
     if (publicKey && signMessage) {
       const signature = await createAuthToken({ publicKey, signMessage });
@@ -104,7 +95,6 @@ export const useUser = () => {
     authenticate,
     isSigning,
     logout,
-    isFetchingUser,
     updateTradeOfferUrl,
   };
 };

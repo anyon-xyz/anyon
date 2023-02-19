@@ -9,10 +9,50 @@ import Image from "next/image";
 import { ProfileModal } from "../components/ProfileModal";
 import Link from "next/link";
 import { Inventory } from "../components/Inventory";
+import { api } from "../utils/api";
+import { toast } from "react-hot-toast";
+import { deleteCookie, getCookie } from "cookies-next";
+import { useUser } from "../hooks/useUser";
 
 const Home: NextPage = () => {
-  const { user, csgoInventory } = useStore();
+  const { user, csgoInventory, setUser, setShowSteamLinkModal } = useStore(
+    (state) => ({
+      user: state.user,
+      setUser: state.setUser,
+      setShowSteamLinkModal: state.setShowSteamLinkModal,
+      csgoInventory: state.csgoInventory,
+    })
+  );
   const { isLoadingInventory } = useInventory();
+  const { authenticate } = useUser();
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ = api.user.me.useQuery(
+    undefined, // no input
+    {
+      onSuccess(user) {
+        setUser(user);
+        if (!user.steamId) {
+          setShowSteamLinkModal(true);
+        }
+      },
+      onError(error) {
+        // try to sign in again
+        if (error.data && error.data.httpStatus === 401) {
+          return authenticate();
+        }
+
+        deleteCookie("auth-jwt");
+        toast.error(
+          "Failed to fetch current user. Refresh the page and try sign in again"
+        );
+      },
+      // on error -> reset auth-jwt cookie
+      enabled: !user && !!getCookie("auth-jwt"),
+      retry: false,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   return (
     <>

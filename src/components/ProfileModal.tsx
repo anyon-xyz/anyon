@@ -7,11 +7,14 @@ import { shortenAddress } from "../utils/shortenAddress";
 import { Modal } from "./Modal";
 
 export const ProfileModal = () => {
-  const user = useStore((state) => state.user);
   const { updateTradeOfferUrl } = useUser();
   const [tradeOfferUrl, setTradeOfferUrl] = useState<string>("");
-  const showProfileModal = useStore((state) => state.showProfileModal);
-  const setShowProfileModal = useStore((state) => state.setShowProfileModal);
+
+  const { showProfileModal, setShowProfileModal, user } = useStore((state) => ({
+    showProfileModal: state.showProfileModal,
+    setShowProfileModal: state.setShowProfileModal,
+    user: state.user,
+  }));
 
   return (
     <Modal

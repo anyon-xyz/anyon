@@ -1,6 +1,7 @@
 import type { PublicKey } from "@solana/web3.js";
 import crypto from "crypto";
 import b58 from "bs58";
+import { MAX_AGE_MS } from "./constants";
 
 export type MessageSigner = {
   signMessage(message: Uint8Array): Promise<Uint8Array>;
@@ -10,7 +11,7 @@ export type MessageSigner = {
 export const createAuthToken = async (wallet: MessageSigner) => {
   const encodedMessage = new TextEncoder().encode(
     JSON.stringify({
-      exp: (new Date().getTime() + 720 * 60000) / 1000, // 12 hours in timestamps
+      exp: (new Date().getTime() + MAX_AGE_MS) / 1000, // 12 hours in timestamps
       nonce: crypto.randomBytes(32).toString("base64"),
     })
   );
