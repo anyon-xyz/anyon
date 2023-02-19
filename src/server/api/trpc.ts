@@ -104,7 +104,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
  */
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { verifyJWT } from "../auth";
+import { verifyJWT } from "./auth";
 import { z } from "zod";
 import type { User } from "@prisma/client";
 

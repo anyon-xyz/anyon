@@ -3,7 +3,7 @@ import * as z from "zod";
 import type { UserSteamProfile } from "../../../server/api/passport";
 import { passport, router } from "../../../server/api/passport";
 import { prisma } from "../../../server/db";
-import { verifyJWT } from "../../../server/auth";
+import { verifyJWT } from "../../../server/api/auth";
 import { redis } from "../../../server/db";
 
 interface AuthRequest extends NextApiRequest {

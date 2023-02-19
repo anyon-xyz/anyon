@@ -5,6 +5,7 @@ import { TextDecoder } from "text-encoding";
 import { setCookie } from "cookies-next";
 import { signJWT } from "./jwt";
 import type { PrismaClient, User } from "@prisma/client";
+import { MAX_AGE_MS } from "../../../utils/constants";
 
 export const authUser = async (
   signature: string,
@@ -52,7 +53,7 @@ export const authUser = async (
   });
 
   setCookie("auth-jwt", JWT, {
-    maxAge: 1000 * 60 * 60 * 12, // 12h
+    maxAge: MAX_AGE_MS, // 12h
   });
 
   return { authorization: JWT, user };
