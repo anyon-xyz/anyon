@@ -1,12 +1,17 @@
+import "dotenv/config";
 import TradeOfferManager from "steam-tradeoffer-manager";
 import SteamUser from "steam-user";
 import SteamTotp from "steam-totp";
 import SteamCommunity from "steamcommunity";
 import { env } from "../../../env/server.mjs";
 import { getBaseUrl } from "../../../utils/api.js";
+import Redis from "ioredis";
 
 export const steam = () => {
   const client = new SteamUser();
+  const redis = new Redis({
+    host: env.REDIS_URL,
+  });
   const community = new SteamCommunity();
   const manager = new TradeOfferManager({
     steam: client,
@@ -22,9 +27,11 @@ export const steam = () => {
       machineName: env.STEAM_MACHINE_NAME || "localhost",
     });
 
-  const onWebSession = (_: string, cookies: string[]) => {
+  const onWebSession = async (_: string, cookies: string[]) => {
     manager.setCookies(cookies);
     community.setCookies(cookies);
+
+    await redis.set("steam-cookies", JSON.stringify(cookies), "EX", 86400);
   };
 
   const acceptOffer = (offerId: string): Promise<string> =>
@@ -71,6 +78,7 @@ export const steam = () => {
   const init = () => {
     login();
     client.on("loggedOn", () => console.log("Logged into Steam"));
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     client.on("webSession", onWebSession);
 
     return {
@@ -80,3 +88,5 @@ export const steam = () => {
 
   return init();
 };
+
+steam();
