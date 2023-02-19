@@ -1,6 +1,6 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import useStore from "../store";
+import { useStore } from "../store";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { shortenAddress } from "../utils/shortenAddress";
 import { useUser } from "../hooks/useUser";
@@ -15,7 +15,7 @@ const WalletMultiButtonDynamic = dynamic(
 );
 
 export const Header = () => {
-  const user = useStore((state) => state.authUser);
+  const user = useStore((state) => state.user);
   const setShowProfileModal = useStore((state) => state.setShowProfileModal);
   const { connected } = useWallet();
   const { logout, authenticate } = useUser();

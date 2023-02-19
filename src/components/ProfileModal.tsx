@@ -2,28 +2,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useUser } from "../hooks/useUser";
-import useStore from "../store";
+import { useStore } from "../store";
 import { shortenAddress } from "../utils/shortenAddress";
 import { Modal } from "./Modal";
 
-interface ProfileModalProps {
-  showModal: boolean;
-  setShowModal: (showModal: boolean) => void;
-}
-
-export const ProfileModal = ({
-  showModal,
-  setShowModal,
-}: ProfileModalProps) => {
-  const user = useStore((state) => state.authUser);
+export const ProfileModal = () => {
+  const user = useStore((state) => state.user);
   const { updateTradeOfferUrl } = useUser();
   const [tradeOfferUrl, setTradeOfferUrl] = useState<string>("");
+  const showProfileModal = useStore((state) => state.showProfileModal);
+  const setShowProfileModal = useStore((state) => state.setShowProfileModal);
 
   return (
     <Modal
       title="Edit profile"
-      showModal={showModal}
-      setShowModal={setShowModal}
+      showModal={showProfileModal}
+      setShowModal={setShowProfileModal}
       width="w-96"
       // TODO: validate form
       onSaveSubmit={() =>

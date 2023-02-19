@@ -1,35 +1,29 @@
-import type { User } from "@prisma/client";
-import { create } from "zustand";
-import type { CsgoInventory } from "../server/api/services/steam-service";
+import type { StateCreator } from "zustand";
+import { create as _create } from "zustand";
+import type { UserSlice } from "./createUserSlice";
+import { createUserSlice } from "./createUserSlice";
+import type { InventorySlice } from "./createInventorySlice";
+import { createInventorySlice } from "./createInventorySlice";
 
-type Store = {
-  authUser: User | null;
-  setAuthUser: (user: User | null) => void;
-  showSteamLinkModal: boolean;
-  setShowSteamLinkModal: (showModal: boolean) => void;
-  // clean everything
-  logout: () => void;
-  csgoInventory: CsgoInventory | null;
-  setCsgoInventory: (csgoInventory: CsgoInventory) => void;
-  showProfileModal: boolean;
-  setShowProfileModal: (showProfileModal: boolean) => void;
+const resetters: (() => void)[] = [];
+
+export const create = (<T>(f: StateCreator<T> | undefined) => {
+  if (f === undefined) return create;
+  const store = _create(f);
+  const initialState = store.getState();
+  resetters.push(() => {
+    store.setState(initialState, true);
+  });
+  return store;
+}) as typeof _create;
+
+export const resetAllStores = () => {
+  for (const resetter of resetters) {
+    resetter();
+  }
 };
 
-const useStore = create<Store>((set) => ({
-  authUser: null,
-  setAuthUser: (user) => set((state) => ({ ...state, authUser: user })),
-  showSteamLinkModal: false,
-  setShowSteamLinkModal: (showModal) =>
-    set((state) => ({ ...state, showSteamLinkModal: showModal })),
-  logout: () => {
-    set({});
-  },
-  csgoInventory: null,
-  setCsgoInventory: (csgoInventory) =>
-    set((state) => ({ ...state, csgoInventory })),
-  showProfileModal: false,
-  setShowProfileModal: (showModal) =>
-    set((state) => ({ ...state, showProfileModal: showModal })),
+export const useStore = create<UserSlice & InventorySlice>()((...a) => ({
+  ...createUserSlice(...a),
+  ...createInventorySlice(...a),
 }));
-
-export default useStore;
