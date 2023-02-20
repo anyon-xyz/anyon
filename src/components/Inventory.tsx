@@ -1,9 +1,11 @@
-import { useStore } from "../store";
+import type { CsgoInventory } from "../server/api/services/steam-service";
 import { ItemCard } from "./ItemCard";
 
-export const Inventory = () => {
-  const csgoInventory = useStore((state) => state.csgoInventory);
+interface InventoryProps {
+  csgoInventory: CsgoInventory | null;
+}
 
+export const Inventory = ({ csgoInventory }: InventoryProps) => {
   if (!csgoInventory || csgoInventory.descriptions.length === 0) {
     return <div>No items found in your inventory</div>;
   }

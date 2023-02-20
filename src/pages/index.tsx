@@ -5,7 +5,7 @@ import { useStore } from "../store";
 import { Header } from "../components/Header";
 import { useInventory } from "../hooks/useInventory";
 import Image from "next/image";
-// import { Puff } from "react-loading-icons";
+import { Puff } from "react-loading-icons";
 import { ProfileModal } from "../components/ProfileModal";
 import Link from "next/link";
 import { Inventory } from "../components/Inventory";
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
       csgoInventory: state.csgoInventory,
     })
   );
-  const { isLoadingInventory } = useInventory();
+  const { isLoadingInventory, onRefetchInventory } = useInventory();
   const { authenticate } = useUser();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -39,6 +39,7 @@ const Home: NextPage = () => {
       onError(error) {
         // try to sign in again
         if (error.data && error.data.httpStatus === 401) {
+          console.log("Signing");
           return authenticate();
         }
 
@@ -73,15 +74,17 @@ const Home: NextPage = () => {
             <span className="italic text-gray-400">
               soon available for other games
             </span>
+
+            <button onClick={onRefetchInventory}>refetch</button>
           </div>
 
-          {user && user.steamId && <Inventory />}
+          {user && user.steamId && <Inventory csgoInventory={csgoInventory} />}
 
-          {/* {user && isLoadingInventory && (
+          {user && isLoadingInventory && (
             <div className="flex items-center justify-center">
               <Puff className="mt-4" />
             </div>
-          )} */}
+          )}
 
           {!user && <>sign in to wrap steam skins</>}
 

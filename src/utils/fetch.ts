@@ -1,6 +1,10 @@
 import fetch from "node-fetch";
 
-const request = async <T>(
+export interface Error {
+  error?: string;
+}
+
+const request = async <T extends Error>(
   endpoint: string,
   method: "POST" | "GET" = "GET",
   headers?: Record<string, string>
@@ -19,7 +23,9 @@ const request = async <T>(
     return data;
   }
   return Promise.reject(
-    new Error(`Error code ${response.status} - ${response.statusText}`)
+    new Error(
+      data.error || `Error code ${response.status} - ${response.statusText}`
+    )
   );
 };
 

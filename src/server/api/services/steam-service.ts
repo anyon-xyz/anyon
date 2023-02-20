@@ -65,39 +65,30 @@ export interface CsgoInventory {
   total_inventory_count: number;
   success: number;
   rwgrsn: number;
+  error?: string;
+  code?: string;
 }
 
 const CSGO_APP_ID = 730;
-const MAX_COUNT = 100;
 
 // http://steamcommunity.com/profiles/<STEAMID>/inventory/json/<APPID>/2
 export const getCsgoInventory = async (
   redis: Redis,
   steamId: string,
-  // TODO: implement
   forceFetch?: boolean
 ): Promise<CsgoInventory> => {
   const memoize = await redis.get(steamId);
 
-  if (memoize) {
+  if (memoize && !forceFetch) {
     const cachedInventory = JSON.parse(memoize) as CsgoInventory;
 
     return cachedInventory;
   }
 
-  const cookies = await redis.get("steam-cookies");
-
   const response = await request<CsgoInventory>(
-    `https://steamcommunity.com/inventory/${steamId}/${CSGO_APP_ID}/2?l=english&count=${MAX_COUNT}`,
+    `https://api.steamapis.com/steam/inventory/${steamId}/${CSGO_APP_ID}/2?api_key=_-P8rpyPpZbRDy34ec-9d5wFhOA`,
     "GET",
-    {
-      ...(cookies && {
-        cookie: (JSON.parse(cookies) as string[]).reduce(
-          (acc, curr) => `${acc + curr};`,
-          ""
-        ),
-      }),
-    }
+    {}
   );
 
   if (!response.success) {
