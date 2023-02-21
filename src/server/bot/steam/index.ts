@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "dotenv/config";
 import TradeOfferManager from "steam-tradeoffer-manager";
 import SteamUser from "steam-user";
@@ -27,11 +29,9 @@ export const steam = () => {
       machineName: env.STEAM_MACHINE_NAME || "localhost",
     });
 
-  const onWebSession = async (_: string, cookies: string[]) => {
+  const onWebSession = (_: string, cookies: string[]) => {
     manager.setCookies(cookies);
     community.setCookies(cookies);
-
-    await redis.set("steam-cookies", JSON.stringify(cookies), "EX", 86400);
   };
 
   const acceptOffer = (offerId: string): Promise<string> =>
@@ -75,18 +75,32 @@ export const steam = () => {
     console.log(`Offer #${offer.id} sent successfully`);
   };
 
+  const getOfferDetails = (offerId: string) =>
+    new Promise<TradeOfferManager.TradeOffer>((resolve, reject) => {
+      manager.getOffer(offerId, (err, offer) => {
+        if (err) reject(err);
+
+        resolve(offer);
+      });
+    });
+
   const init = () => {
     login();
     client.on("loggedOn", () => console.log("Logged into Steam"));
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     client.on("webSession", onWebSession);
+
+    community.on("sessionExpired", () => {
+      console.log("session expired");
+      console.log("logging again");
+
+      login();
+    });
 
     return {
       createOffer,
+      getOfferDetails,
     };
   };
 
   return init();
 };
-
-steam();
