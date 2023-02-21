@@ -1,11 +1,15 @@
-import type { CsgoInventory } from "../server/api/services/steam-service";
+import { useStore } from "../store";
 import { ItemCard } from "./ItemCard";
 
-interface InventoryProps {
-  csgoInventory: CsgoInventory | null;
-}
+export const Inventory = () => {
+  const { setSelectItemToWrap, csgoInventory, setOpenWrapModal } = useStore(
+    (state) => ({
+      csgoInventory: state.csgoInventory,
+      setSelectItemToWrap: state.setSelectItemToWrap,
+      setOpenWrapModal: state.setOpenWrapModal,
+    })
+  );
 
-export const Inventory = ({ csgoInventory }: InventoryProps) => {
   if (!csgoInventory || csgoInventory.descriptions.length === 0) {
     return <div>No items found in your inventory</div>;
   }
@@ -16,7 +20,14 @@ export const Inventory = ({ csgoInventory }: InventoryProps) => {
         .filter((item) => item.tradable === 1)
         .slice(0, 12)
         .map((item) => (
-          <ItemCard key={item.classid} item={item} />
+          <ItemCard
+            onWrap={(item) => {
+              setSelectItemToWrap(item);
+              setOpenWrapModal(true);
+            }}
+            key={item.classid}
+            item={item}
+          />
         ))}
     </div>
   );
