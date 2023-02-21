@@ -1,7 +1,38 @@
+import type { User } from "@prisma/client";
 import { useCallback, useState } from "react";
 import { toast } from "react-hot-toast";
+import type { CsgoInventory } from "../server/api/services/steam-service";
 import { useStore } from "../store";
 import { api } from "../utils/api";
+
+export const useQueryInventory = ({
+  refetchInventory,
+  setCsgoInventory,
+  user,
+}: {
+  refetchInventory: boolean;
+  setCsgoInventory: (inventory: CsgoInventory) => void;
+  user?: User | null;
+}) =>
+  api.steam.getCsgoInventory.useQuery(
+    { forceFetch: refetchInventory },
+    {
+      onSuccess(data) {
+        setCsgoInventory(data);
+      },
+      onError(err) {
+        toast(err.message, {
+          icon: "❌",
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        });
+      },
+      enabled: user !== undefined && user !== null && !!user.steamId,
+      retry: 0,
+    }
+  );
 
 export const useInventory = () => {
   const setCsgoInventory = useStore((state) => state.setCsgoInventory);
@@ -9,25 +40,7 @@ export const useInventory = () => {
   const [refetchInventory, setRefetchInventory] = useState<boolean>(false);
 
   const { isFetching: isFetchingInventory, isLoading: isLoadingInventory } =
-    api.steam.getCsgoInventory.useQuery(
-      { forceFetch: refetchInventory },
-      {
-        onSuccess(data) {
-          setCsgoInventory(data);
-        },
-        onError(err) {
-          toast(err.message, {
-            icon: "❌",
-            style: {
-              background: "#333",
-              color: "#fff",
-            },
-          });
-        },
-        enabled: user !== undefined && user !== null && !!user.steamId,
-        retry: 0,
-      }
-    );
+    useQueryInventory({ refetchInventory, setCsgoInventory, user });
 
   const onRefetchInventory = useCallback(() => {
     setRefetchInventory(true);
