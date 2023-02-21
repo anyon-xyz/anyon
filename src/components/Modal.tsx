@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface ModalProps {
   title?: string;
+  description?: string;
   children: React.ReactNode;
   showModal: boolean;
   setShowModal: (showModal: boolean) => void;
   width?: "auto" | string;
+  className?: React.ComponentProps<"div">["className"];
   onSaveSubmit?: () => void;
 }
 
@@ -16,6 +18,8 @@ export const Modal = ({
   showModal,
   setShowModal,
   width = "auto",
+  className,
+  description,
   onSaveSubmit,
 }: ModalProps) => {
   return (
@@ -45,22 +49,23 @@ export const Modal = ({
             }}
             className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none"
           >
-            <div className={`relative my-6 mx-auto ${width} max-w-3xl`}>
+            <div
+              className={`relative my-6 mx-auto ${width} max-w-3xl ${
+                className || ""
+              }`}
+            >
               {/*content*/}
               <div className="relative flex w-full flex-col rounded-lg border-0 bg-black text-white shadow-lg outline-none focus:outline-none">
                 {/*header*/}
-                <div className="flex items-start justify-between rounded-t border-b border-solid border-slate-700 p-5">
+                <div className="flex flex-col items-start justify-between rounded-t border-b border-solid border-slate-700 p-5">
                   <h3 className="text-3xl font-semibold">
                     {title || "Register"}
                   </h3>
-                  <button
-                    className="float-right ml-auto border-0 bg-transparent p-1 text-3xl font-semibold leading-none text-black opacity-5 outline-none focus:outline-none"
-                    onClick={() => setShowModal(false)}
-                  >
-                    <span className="block h-6 w-6 bg-transparent text-2xl text-black opacity-5 outline-none focus:outline-none">
-                      ×
-                    </span>
-                  </button>
+                  {description && (
+                    <p className="mt-2 font-light text-gray-300">
+                      {description}
+                    </p>
+                  )}
                 </div>
                 {/*body*/}
                 {children}
