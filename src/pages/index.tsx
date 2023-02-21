@@ -13,16 +13,22 @@ import { api } from "../utils/api";
 import { toast } from "react-hot-toast";
 import { deleteCookie, getCookie } from "cookies-next";
 import { useUser } from "../hooks/useUser";
+import { Wrap } from "../components/Wrap";
 
 const Home: NextPage = () => {
-  const { user, csgoInventory, setUser, setShowSteamLinkModal } = useStore(
-    (state) => ({
-      user: state.user,
-      setUser: state.setUser,
-      setShowSteamLinkModal: state.setShowSteamLinkModal,
-      csgoInventory: state.csgoInventory,
-    })
-  );
+  const {
+    user,
+    csgoInventory,
+    setUser,
+    setShowSteamLinkModal,
+    selectItemToWrap,
+  } = useStore((state) => ({
+    user: state.user,
+    setUser: state.setUser,
+    setShowSteamLinkModal: state.setShowSteamLinkModal,
+    csgoInventory: state.csgoInventory,
+    selectItemToWrap: state.selectItemToWrap,
+  }));
   const { isLoadingInventory, onRefetchInventory } = useInventory();
   const { authenticate } = useUser();
 
@@ -78,8 +84,7 @@ const Home: NextPage = () => {
             <button onClick={onRefetchInventory}>refetch</button>
           </div>
 
-          {user && user.steamId && <Inventory csgoInventory={csgoInventory} />}
-
+          {user && user.steamId ? <Inventory /> : null}
           {user && isLoadingInventory && (
             <div className="flex items-center justify-center">
               <Puff className="mt-4" />
@@ -106,6 +111,8 @@ const Home: NextPage = () => {
           {user && user.steamId && !csgoInventory && !isLoadingInventory && (
             <div>fail to load csgo inventory</div>
           )}
+
+          {selectItemToWrap && <Wrap item={selectItemToWrap} />}
 
           <LinkSteamModal />
 
