@@ -6,7 +6,7 @@ export default defineConfig({
   clean: true,
   dts: true,
   entry: ["index.ts"],
-  format: "esm",
+  format: ["esm", "cjs", "iife"],
   minify: !isDev,
   target: "esnext",
   outDir: "dist",
