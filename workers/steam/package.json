@@ -13,8 +13,10 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@anyon/db": "*",
     "@anyon/env": "*",
     "@anyon/common": "*",
+    "@anyon/queue": "*",
     "ioredis": "^5.3.1",
     "steam-totp": "^2.1.2",
     "steam-tradeoffer-manager": "^2.10.5",
