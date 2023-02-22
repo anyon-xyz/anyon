@@ -18,6 +18,7 @@
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 
 import { prisma, redis } from "@anyon/db";
+import { queue } from "@anyon/queue";
 
 type CreateContextOptions = {
   user: User | null;
@@ -34,10 +35,15 @@ type CreateContextOptions = {
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
+  const steamQueue = queue("steam");
+
   return {
     user: opts.user,
     prisma,
     redis,
+    queue: {
+      steam: steamQueue.queue(),
+    },
   };
 };
 
