@@ -58,15 +58,12 @@ const init = async () => {
         throw new UnrecoverableError("Cannot find `steamTradeUrl`");
       }
 
-      const offer = await steam.createOffer(
-        "https://steamcommunity.com/tradeoffer/new/?partner=1146723903&token=W6iLOsx7",
-        {
-          assetid: job.data.item.assetid,
-          appid: job.data.item.appid,
-          contextid: job.data.item.contextid,
-          amount: 1,
-        } as unknown as EconItem
-      );
+      const offer = await steam.createOffer(user.steamTradeUrl, {
+        assetid: job.data.item.assetid,
+        appid: job.data.item.appid,
+        contextid: job.data.item.contextid,
+        amount: 1,
+      } as unknown as EconItem);
 
       console.log({
         offer,
