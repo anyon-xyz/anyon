@@ -67,6 +67,7 @@ export const steam = () => {
     }
 
     console.log(`Offer #${offer.id} sent successfully`);
+    return offer;
   };
 
   const getOfferDetails = (offerId: string) =>
@@ -93,9 +94,12 @@ export const steam = () => {
     cb();
   };
 
+  const isOnline = () => !!client.steamID;
+
   return {
     initBot,
     createOffer,
     getOfferDetails,
+    isOnline,
   };
 };
