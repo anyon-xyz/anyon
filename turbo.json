@@ -1,0 +1,45 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "db:generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "cache": false
+    },
+    "db:push": {
+      "inputs": ["prisma/schema.prisma"],
+      "cache": false
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build", "^db:generate"],
+      "outputs": [".next/**"]
+    },
+    "lint": {},
+    "clean": {
+      "cache": false
+    },
+    "//#clean": {
+      "cache": false
+    },
+    "type-check": {
+      "dependsOn": ["^db:generate"],
+      "cache": false
+    }
+  },
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "STEAM_API_KEY",
+    "STEAM_APIS_KEY",
+    "STEAM_ACCOUNT_NAME",
+    "STEAM_PASSWORD",
+    "STEAM_SHARED_SECRET",
+    "STEAM_IDENTITY_SECRET",
+    "STEAM_MACHINE_NAME",
+    "SECRET",
+    "REDIS_URL"
+  ]
+}
