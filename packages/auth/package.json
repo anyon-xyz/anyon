@@ -1,0 +1,25 @@
+{
+  "name": "@anyon/auth",
+  "version": "0.1.0",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anyon/db": "*",
+    "@solana/web3.js": "^1.73.2",
+    "bs58": "^5.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "text-encoding": "^0.7.0",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
+    "eslint": "^8.32.0",
+    "typescript": "^4.9.5"
+  }
+}
