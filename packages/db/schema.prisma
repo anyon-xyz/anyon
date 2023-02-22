@@ -28,14 +28,14 @@ model User {
 }
 
 // This is just to know who was the user who wrapped the skin but not necessarily  
-// the owner of the skin because he can sell it after wrapped
+// the owner of the skin because he can sell it after wrap
 model WrappedItem {
     id              String @id @default(uuid())
     appId           Int
     classId         String
     instanceId      String
     marketHashName  String
-    mintNft         String?
+    mint            String?
     userId          String
     user            User     @relation(fields: [userId], references: [id])
 }

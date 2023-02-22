@@ -21,6 +21,7 @@ const config = {
           "./tsconfig.json",
           "./apps/*/tsconfig.json",
           "./packages/*/tsconfig.json",
+          "./workers/tsconfig.json",
         ],
       },
       rules: {

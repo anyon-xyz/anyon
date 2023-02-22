@@ -18,4 +18,21 @@ export const steamRouter = createTRPCRouter({
 
       return invetory;
     }),
+
+  wrapItem: protectedProcedure
+    .input(
+      z.object({
+        appId: z.number().int(),
+        classId: z.string(),
+        instanceId: z.string(),
+      })
+    )
+    .mutation(({ ctx }) => {
+      const user = ctx.user;
+
+      return {
+        user,
+        sucess: true,
+      };
+    }),
 });

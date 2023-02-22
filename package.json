@@ -5,7 +5,8 @@
   "workspaces": [
     "packages/*",
     "packages/config/*",
-    "apps/*"
+    "apps/*",
+    "workers/*"
   ],
   "scripts": {
     "build": "turbo build",
