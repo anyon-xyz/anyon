@@ -1,16 +1,24 @@
-import type { Description } from "@anyon/api";
+import type { Asset, Description } from "@anyon/api";
 import Image from "next/image";
+import { api } from "~/utils/api";
 import { getStickerImageFromCsgoItem } from "~/utils/getStickerImageFromCsgoItem";
 
 interface TransferItemToSteamEscrowProps {
   item: Description;
+  asset: Asset;
   onNext: () => void;
 }
 
 export const TransferItemToSteamEscrow = ({
   item,
-  onNext,
+  asset,
 }: TransferItemToSteamEscrowProps) => {
+  const { mutate: onWrap } = api.steam.wrapItem.useMutation({
+    onSuccess(data) {
+      console.log(data);
+    },
+  });
+
   return (
     <div className="flex w-full flex-col items-center px-4">
       <h1
@@ -37,7 +45,15 @@ export const TransferItemToSteamEscrow = ({
       </div>
 
       <button
-        onClick={onNext}
+        onClick={() =>
+          onWrap({
+            appid: asset.appid,
+            assetid: asset.assetid,
+            contextid: asset.contextid,
+            id: asset.assetid,
+            marketHashName: item.market_hash_name,
+          })
+        }
         className="mt-5 w-full rounded-xl bg-slate-600 p-3 transition delay-150 duration-200 hover:bg-slate-700 "
       >
         Transfer to our steam escrow

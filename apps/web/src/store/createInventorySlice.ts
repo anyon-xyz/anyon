@@ -1,8 +1,5 @@
+import type { Asset, CsgoInventory, Description } from "@anyon/api";
 import type { StateCreator } from "zustand";
-import type {
-  CsgoInventory,
-  Description,
-} from "@anyon/api";
 
 export interface InventorySlice {
   csgoInventory: CsgoInventory | null;
@@ -11,9 +8,13 @@ export interface InventorySlice {
   setOpenWrapModal: (openWrapModal: boolean) => void;
   selectItemToWrap: Description | null;
   setSelectItemToWrap: (item: Description) => void;
+  getItemAssetByClassId: (classId: string) => Asset | undefined;
 }
 
-export const createInventorySlice: StateCreator<InventorySlice> = (set) => ({
+export const createInventorySlice: StateCreator<InventorySlice> = (
+  set,
+  get
+) => ({
   csgoInventory: null,
   setCsgoInventory: (csgoInventory) =>
     set((state) => ({ ...state, csgoInventory })),
@@ -23,4 +24,11 @@ export const createInventorySlice: StateCreator<InventorySlice> = (set) => ({
   selectItemToWrap: null,
   setSelectItemToWrap: (item) =>
     set((state) => ({ ...state, selectItemToWrap: item })),
+  getItemAssetByClassId: (classId: string) => {
+    const inventory = get().csgoInventory;
+
+    const asset = inventory?.assets.find((asset) => asset.classid === classId);
+
+    return asset;
+  },
 });

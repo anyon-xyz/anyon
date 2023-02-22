@@ -11,10 +11,13 @@ interface WrapProps {
 }
 
 export const Wrap = ({ item }: WrapProps) => {
-  const { openWrapModal, setOpenWrapModal } = useStore((state) => ({
-    openWrapModal: state.openWrapModal,
-    setOpenWrapModal: state.setOpenWrapModal,
-  }));
+  const { openWrapModal, setOpenWrapModal, getItemAssetByClassId } = useStore(
+    (state) => ({
+      openWrapModal: state.openWrapModal,
+      setOpenWrapModal: state.setOpenWrapModal,
+      getItemAssetByClassId: state.getItemAssetByClassId,
+    })
+  );
   const [step, setStep] = useState<number>(0);
 
   const nextStep = () => setStep((prevStep) => prevStep + 1);
@@ -24,6 +27,7 @@ export const Wrap = ({ item }: WrapProps) => {
 
   const wrapFlow = [
     <TransferItemToSteamEscrow
+      asset={getItemAssetByClassId(item.classid)!}
       key={item.classid}
       item={item}
       onNext={() => nextStep()}
