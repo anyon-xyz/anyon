@@ -40,6 +40,7 @@ const config = {
   reportUnusedDisableDirectives: true,
   ignorePatterns: [
     ".eslintrc.js",
+    "trade-offer.d.ts",
     "**/*.config.js",
     "**/*.config.cjs",
     "packages/config/**",
