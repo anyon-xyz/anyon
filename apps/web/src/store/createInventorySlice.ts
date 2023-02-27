@@ -8,7 +8,11 @@ export interface InventorySlice {
   setOpenWrapModal: (openWrapModal: boolean) => void;
   selectItemToWrap: Description | null;
   setSelectItemToWrap: (item: Description) => void;
-  getItemAssetByClassId: (classId: string) => Asset | undefined;
+  getItemAssetByClassId: (
+    classId: string,
+    appId: number,
+    instanceId: string
+  ) => Asset;
 }
 
 export const createInventorySlice: StateCreator<InventorySlice> = (
@@ -24,10 +28,23 @@ export const createInventorySlice: StateCreator<InventorySlice> = (
   selectItemToWrap: null,
   setSelectItemToWrap: (item) =>
     set((state) => ({ ...state, selectItemToWrap: item })),
-  getItemAssetByClassId: (classId: string) => {
+  getItemAssetByClassId: (
+    classId: string,
+    appId: number,
+    instanceId: string
+  ) => {
     const inventory = get().csgoInventory;
 
-    const asset = inventory?.assets.find((asset) => asset.classid === classId);
+    const asset = inventory?.assets.find(
+      (asset) =>
+        asset.classid === classId &&
+        asset.appid === appId &&
+        asset.instanceid === instanceId
+    );
+
+    if (!asset) {
+      throw new Error("Invalid item");
+    }
 
     return asset;
   },
