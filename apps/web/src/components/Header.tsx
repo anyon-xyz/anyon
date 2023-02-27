@@ -1,12 +1,12 @@
-import Image from "next/image";
-import dynamic from "next/dynamic";
-import { useStore } from "../store";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { shortenAddress } from "@anyon/common";
-import { useUser } from "../hooks/useUser";
+import { useWallet } from "@solana/wallet-adapter-react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { BsGear } from "react-icons/bs";
+import { useUser } from "../hooks/useUser";
+import { useStore } from "../store";
 
 const WalletMultiButtonDynamic = dynamic(
   async () =>
@@ -27,7 +27,7 @@ export const Header = () => {
       <div className="flex items-center gap-3 md:gap-8">
         <Image
           className="rounded-full"
-          src="/full-logo.png"
+          src="/logo-2.png"
           alt="logo"
           width={60}
           height={60}
