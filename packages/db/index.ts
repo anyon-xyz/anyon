@@ -17,8 +17,9 @@ export const prisma =
         : ["error"],
   });
 
-export const redis = new Redis({
-  host: env.REDIS_URL,
-});
+export const redis = () =>
+  new Redis({
+    host: env.REDIS_URL,
+  });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
