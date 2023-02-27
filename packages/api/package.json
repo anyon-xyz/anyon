@@ -7,26 +7,33 @@
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit"
+    "dev": "yarn with-env tsx watch src/wssDevServer.ts --tsconfig tsconfig.server.json ",
+    "type-check": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
     "@anyon/db": "*",
-    "@anyon/queue": "*",
     "@anyon/env": "*",
+    "@anyon/queue": "*",
     "@trpc/client": "^10.9.0",
     "@trpc/server": "^10.9.0",
     "bs58": "^5.0.0",
     "cookie-session": "^2.0.0",
+    "node-fetch": "^2.6.1",
     "passport": "^0.6.0",
     "passport-steam": "^1.0.17",
     "superjson": "1.12.2",
     "text-encoding": "^0.7.0",
+    "tsx": "^3.12.3",
+    "ws": "^8.12.1",
     "zod": "^3.20.2"
   },
   "devDependencies": {
     "@types/cookie-session": "^2.0.44",
+    "@types/node-fetch": "^2.5.11",
     "@types/passport": "^1.0.12",
     "@types/text-encoding": "^0.0.36",
+    "dotenv-cli": "^7.0.0",
     "eslint": "^8.32.0",
     "typescript": "^4.9.5"
   }

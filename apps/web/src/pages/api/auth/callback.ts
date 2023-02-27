@@ -2,7 +2,8 @@
 import type { UserSteamProfile } from "@anyon/api";
 import { passport, router } from "@anyon/api";
 import { verifyJWT } from "@anyon/auth";
-import { prisma, redis } from "@anyon/db";
+import { prisma, redis as _redis } from "@anyon/db";
+import { Redis } from "ioredis";
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as z from "zod";
 
@@ -16,9 +17,22 @@ const authSchema = z.object({
   userId: z.string(),
 });
 
+let redis: Redis | undefined;
+const getRedis = () => {
+  if (redis) {
+    return redis;
+  }
+
+  redis = _redis();
+
+  return redis;
+};
+
 export default router
   .use(path, passport.authenticate("steam", { failureRedirect: "/" }))
   .get(path, async (req: AuthRequest, res: NextApiResponse) => {
+    const redis = getRedis();
+
     const userSteamData = req.user;
     const authorization = req.cookies["auth-jwt"];
 

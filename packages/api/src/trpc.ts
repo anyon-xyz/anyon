@@ -17,12 +17,14 @@
  */
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 
-import { prisma, redis } from "@anyon/db";
+import { prisma, redis as _redis } from "@anyon/db";
 import { queue } from "@anyon/queue";
 
 type CreateContextOptions = {
   user: User | null;
 };
+
+const redis = _redis();
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use
@@ -60,40 +62,53 @@ const authSchema = z.object({
 
 const TWO_HOUR = 7200;
 
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
+export const createTRPCContext = async (
+  opts:
+    | CreateNextContextOptions
+    | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>
+) => {
   const { req } = opts;
 
-  if (req.cookies["auth-jwt"]) {
-    try {
-      const payload = verifyJWT(req.cookies["auth-jwt"]);
+  if (req.headers.cookie) {
+    const cookies = req.headers.cookie.split("; ");
 
-      const authPayload = authSchema.parse(payload);
+    const authJwtPair = cookies.find((pair) => pair.startsWith("auth-jwt="));
 
-      const memoize = await redis.get(authPayload.userId);
-      if (memoize) {
-        const user = JSON.parse(memoize) as User;
+    if (authJwtPair) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const token = decodeURI(authJwtPair.split("=")[1]!);
+        const payload = verifyJWT(token);
+
+        const authPayload = authSchema.parse(payload);
+
+        const memoize = await redis.get(authPayload.userId);
+        if (memoize) {
+          const user = JSON.parse(memoize) as User;
+
+          return createInnerTRPCContext({
+            user,
+          });
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { id: authPayload.userId },
+        });
+        if (!user) {
+          throw new Error('"user" does not exists');
+        }
+
+        await redis.set(user.id, JSON.stringify(user), "EX", TWO_HOUR);
 
         return createInnerTRPCContext({
           user,
         });
+      } catch (e) {
+        console.log(e);
+        return createInnerTRPCContext({
+          user: null,
+        });
       }
-
-      const user = await prisma.user.findUnique({
-        where: { id: authPayload.userId },
-      });
-      if (!user) {
-        throw new Error('"user" does not exists');
-      }
-
-      await redis.set(user.id, JSON.stringify(user), "EX", TWO_HOUR);
-
-      return createInnerTRPCContext({
-        user,
-      });
-    } catch (e) {
-      return createInnerTRPCContext({
-        user: null,
-      });
     }
   }
 
@@ -101,7 +116,6 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
     user: null,
   });
 };
-
 /**
  * 2. INITIALIZATION
  *
@@ -111,7 +125,10 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 import { verifyJWT } from "@anyon/auth";
 import type { User } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { NodeHTTPCreateContextFnOptions } from "@trpc/server/adapters/node-http";
+import { IncomingMessage } from "http";
 import superjson from "superjson";
+import ws from "ws";
 import { z } from "zod";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({

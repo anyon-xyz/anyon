@@ -5,17 +5,53 @@
  *
  * We also create a few inference helpers for input and output types
  */
-import { getBaseUrl } from "@anyon/common";
 import { httpBatchLink, loggerLink } from "@trpc/client";
+import { createWSClient, wsLink } from "@trpc/client/links/wsLink";
+
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import getConfig from "next/config";
 import superjson from "superjson";
 
 import { type AppRouter } from "@anyon/api";
+import { getBaseUrl } from "@anyon/common";
+import { NextPageContext } from "next";
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const { publicRuntimeConfig } = getConfig();
+console.log("publicRuntimeConfig", publicRuntimeConfig);
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+// const { APP_URL, WS_URL } = publicRuntimeConfig;
+
+function getEndingLink(ctx: NextPageContext | undefined) {
+  if (typeof window === "undefined") {
+    return httpBatchLink({
+      url: `${getBaseUrl()}/api/trpc`,
+      headers() {
+        if (ctx?.req) {
+          // on ssr, forward client's headers to the server
+          return {
+            ...ctx.req.headers,
+            "x-ssr": "1",
+          };
+        }
+        return {};
+      },
+    });
+  }
+  const client = createWSClient({
+    // TODO: get from publicRuntimeConfig
+    url: "ws://localhost:3001",
+  });
+  return wsLink<AppRouter>({
+    client,
+  });
+}
 
 /** A set of type-safe react-query hooks for your tRPC API. */
 export const api = createTRPCNext<AppRouter>({
-  config() {
+  config({ ctx }) {
     return {
       /**
        * Transformer used for data de-serialization from the server.
@@ -35,9 +71,7 @@ export const api = createTRPCNext<AppRouter>({
             process.env.NODE_ENV === "development" ||
             (opts.direction === "down" && opts.result instanceof Error),
         }),
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-        }),
+        getEndingLink(ctx),
       ],
     };
   },
