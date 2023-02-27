@@ -1,9 +1,13 @@
 import { getEnv } from "@anyon/env";
 import { keypairIdentity, Metaplex } from "@metaplex-foundation/js";
-import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 
 export const metaplex = () => {
-  const connection = new Connection(clusterApiUrl("mainnet-beta"));
+  // TODO: move to .env
+  const connection = new Connection(
+    "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099",
+    "finalized"
+  );
   const metaplex = new Metaplex(connection);
 
   const getKeypair = () => {
@@ -22,6 +26,32 @@ export const metaplex = () => {
     const kp = getKeypair();
 
     metaplex.use(keypairIdentity(kp));
+  };
+
+  const createMetadata = (
+    name: string,
+    image: string,
+    imageType: string,
+    attributes: { trait_type: string; value: string }[]
+  ) => {
+    return {
+      name,
+      symbol: "ANYON",
+      description: "g3x",
+      seller_fee_basis_points: 200,
+      image,
+      external_url: "https://anyon.io/",
+      attributes: [...attributes],
+      properties: {
+        files: [
+          {
+            uri: image,
+            type: imageType,
+          },
+        ],
+        category: "image",
+      },
+    };
   };
 
   const mint = async (name: string, uri: string, collectionPk: PublicKey) => {
@@ -46,5 +76,6 @@ export const metaplex = () => {
     metaplex,
     setSecretKey,
     mint,
+    createMetadata,
   };
 };
