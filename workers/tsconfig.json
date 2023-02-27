@@ -16,5 +16,5 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["**/*.ts", "**/*.cjs", "**/*.mjs", "@types"]
+  "include": ["**/*.ts", "**/*.cjs", "**/*.mjs", "trade-offer.d.ts"]
 }

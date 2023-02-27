@@ -1,85 +1,217 @@
-import { getBaseUrl } from "@anyon/common";
-import SteamTotp from "steam-totp";
+import {
+  CSGO_COLLECTION_PK_DEVNET,
+  mimeTypeToExtension,
+  REDIS_CHANNEL_MINT_STEAM_ITEM,
+  REDIS_CHANNEL_TRANSFER_STEAM_ITEM,
+  requestBuffer,
+  SHDW_DRIVE_PK,
+} from "@anyon/common";
+import { prisma } from "@anyon/db";
+import { metaplex as _metaplex } from "@anyon/metaplex";
+import { shdwDrive } from "@anyon/shdw-drive";
+import { steam as _steam } from "@anyon/steam";
+import { PublicKey } from "@solana/web3.js";
+import { Redis } from "ioredis";
 import TradeOfferManager from "steam-tradeoffer-manager";
-import SteamUser from "steam-user";
-import SteamCommunity from "steamcommunity";
-import { env } from "./env";
+import SteamID from "steamid";
 
-export const steam = () => {
-  const client = new SteamUser();
+const getImage = (appid: string, marketHashname: string) =>
+  requestBuffer(
+    `https://api.steamapis.com/image/item/${appid}/${marketHashname}`,
+    "GET"
+  );
 
-  const community = new SteamCommunity();
-  const manager = new TradeOfferManager({
-    steam: client,
-    domain: getBaseUrl(),
-    language: "en",
-  });
+export const steam = async ({ pub }: { pub: Redis }) => {
+  const {
+    login,
+    client,
+    onWebSession,
+    community,
+    manager,
+    getReceivedItems,
+    createOffer,
+    getOfferDetails,
+  } = _steam();
 
-  const login = () =>
-    client.logOn({
-      accountName: env.STEAM_ACCOUNT_NAME,
-      password: env.STEAM_PASSWORD,
-      twoFactorCode: SteamTotp.generateAuthCode(env.STEAM_SHARED_SECRET),
-      machineName: env.STEAM_MACHINE_NAME || "localhost",
-    });
+  const metaplex = _metaplex();
+  metaplex.setSecretKey();
 
-  const onWebSession = (_: string, cookies: string[]) => {
-    manager.setCookies(cookies);
-    community.setCookies(cookies);
+  const drive = await shdwDrive();
+
+  const mintItem = async (offer: TradeOfferManager.TradeOffer) => {
+    const { sentItems } = await getReceivedItems(offer);
+
+    const sent = sentItems[0];
+
+    if (sent) {
+      const steamid = SteamID.fromIndividualAccountID(offer.partner);
+
+      const user = await prisma.user.findUnique({
+        where: {
+          steamId: steamid.toString(),
+        },
+      });
+
+      if (!user) {
+        throw new Error(
+          `User with steamid ${steamid.toString()} does not exists`
+        );
+      }
+
+      const { buffer: imageBuffer, contentType } = await getImage(
+        sent.appid,
+        sent.market_hash_name
+      );
+
+      if (!contentType) {
+        throw new Error("invalid image response");
+      }
+      const ext = mimeTypeToExtension[contentType];
+
+      const buffer = Buffer.from(imageBuffer);
+
+      const idSize = sent.id.length;
+
+      const maxStringSize = 30 - idSize;
+
+      const name = `${sent.market_hash_name.substring(0, maxStringSize)} #${
+        sent.id
+      }`;
+
+      // upload image
+      const { finalized_locations, upload_errors } = await drive.uploadFile(
+        new PublicKey(SHDW_DRIVE_PK),
+        {
+          name: `${sent.id} - dev.${ext || "png"}`,
+          file: buffer,
+        }
+      );
+
+      const imageUrl = finalized_locations[0];
+
+      if (!imageUrl) {
+        throw new Error(
+          `Fail to upload to shdwDrive ${JSON.stringify(upload_errors)}`
+        );
+      }
+
+      const metadata = metaplex.createMetadata(name, imageUrl, contentType, [
+        {
+          trait_type: "id",
+          value: sent.id,
+        },
+        {
+          trait_type: "market_hash_name",
+          value: sent.market_hash_name,
+        },
+        {
+          trait_type: "assetid",
+          value: sent.assetid,
+        },
+        {
+          trait_type: "instanceid",
+          value: sent.instanceid,
+        },
+        {
+          trait_type: "appid",
+          value: sent.appid,
+        },
+        {
+          trait_type: "contextid",
+          value: sent.contextid,
+        },
+      ]);
+
+      // upload metadata
+      const { finalized_locations: uri, upload_errors: uploadMetadataErrors } =
+        await drive.uploadFile(new PublicKey(SHDW_DRIVE_PK), {
+          name: `${sent.id} - dev.json`,
+          file: Buffer.from(JSON.stringify(metadata, null, 2)),
+        });
+
+      const uriUrl = uri[0];
+
+      if (!uriUrl) {
+        throw new Error(
+          `Fail to upload to shdwDrive ${JSON.stringify(uploadMetadataErrors)}`
+        );
+      }
+
+      // mint nft
+      try {
+        const { nft, response } = await metaplex.mint(
+          name,
+          uriUrl,
+          new PublicKey(CSGO_COLLECTION_PK_DEVNET)
+        );
+
+        await prisma.wrappedItem.create({
+          data: {
+            appId: Number(sent.appid),
+            classId: sent.classid,
+            instanceId: sent.instanceid,
+            marketHashName: sent.market_hash_name,
+            mint: nft.address.toBase58(),
+            signature: response.signature,
+            userId: user.id,
+          },
+        });
+
+        void pub.publish(
+          REDIS_CHANNEL_MINT_STEAM_ITEM(sent.assetid),
+          JSON.stringify({
+            ...offer,
+            nftMint: nft.address.toBase58(),
+            signature: response.signature,
+          })
+        );
+      } catch (e) {
+        // parser the error
+        // get the signature
+        // add a job to check if the tx really failed
+        console.log(e);
+      }
+    }
   };
 
-  const acceptOffer = (offerId: string): Promise<string> =>
-    new Promise((resolve, reject) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      community.acceptConfirmationForObject(
-        env.STEAM_IDENTITY_SECRET,
-        offerId,
-        (err) => {
-          if (err) {
-            reject(err);
-          }
+  const onOfferAccepted = async (offer: TradeOfferManager.TradeOffer) => {
+    // for now it will only be possible with 1 item
+    const { receivedItems, sentItems } = await getReceivedItems(offer);
 
-          resolve(offerId);
-        }
-      )
-    );
+    const received = receivedItems[0];
+    const sent = sentItems[0];
 
-  const createOffer = async (
-    tradeOfferUrl: string,
-    item: TradeOfferManager.EconItem
-  ) => {
-    const offer = manager.createOffer(tradeOfferUrl);
-    offer.addTheirItem(item);
-    offer.setMessage("Anyon -> Accept the trade to wrap this skin into NFT");
+    const steamid = SteamID.fromIndividualAccountID(offer.partner);
 
-    const offerSentStatus: "pending" | "sent" = await new Promise(
-      (resolve, reject) => {
-        offer.send((err, status) => {
-          if (err) reject(err);
+    const user = await prisma.user.findUnique({
+      where: {
+        steamId: steamid.toString(),
+      },
+    });
 
-          resolve(status);
-        });
-      }
-    );
-
-    if (offerSentStatus === "pending") {
-      await acceptOffer(offer.id);
+    if (!user) {
+      throw new Error(
+        `User with steamid ${steamid.toString()} does not exists`
+      );
     }
 
-    console.log(`Offer #${offer.id} sent successfully`);
-    return offer;
+    if (received) {
+      // void pub.publish(received.assetid, JSON.stringify(received));
+
+      console.log(`Received item ${received.assetid}`);
+    }
+
+    if (sent) {
+      // TODO: change to received
+      void pub.publish(
+        REDIS_CHANNEL_TRANSFER_STEAM_ITEM(sent.assetid),
+        JSON.stringify(offer)
+      );
+      console.log(`Sent item ${sent.assetid}`);
+    }
   };
 
-  const getOfferDetails = (offerId: string) =>
-    new Promise<TradeOfferManager.TradeOffer>((resolve, reject) => {
-      manager.getOffer(offerId, (err, offer) => {
-        if (err) reject(err);
-
-        resolve(offer);
-      });
-    });
-
-  const initBot = (cb: () => void) => {
+  const initSteamWorker = (cb: () => void) => {
     login();
     client.on("loggedOn", () => console.log("Logged into Steam"));
     client.on("webSession", onWebSession);
@@ -91,13 +223,24 @@ export const steam = () => {
       login();
     });
 
+    manager.on("sentOfferChanged", (offer) => {
+      if (offer.state === TradeOfferManager.ETradeOfferState.Accepted) {
+        // notify that the offer has accepted
+        void onOfferAccepted(offer);
+        // mint the nft
+        void mintItem(offer);
+      } else {
+        console.log("unexpected state - ", offer.state);
+      }
+    });
+
     cb();
   };
 
   const isOnline = () => !!client.steamID;
 
   return {
-    initBot,
+    initSteamWorker,
     createOffer,
     getOfferDetails,
     isOnline,

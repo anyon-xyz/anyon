@@ -1,5 +1,5 @@
 {
-  "name": "@anyon/steam",
+  "name": "@anyon/steam-worker",
   "version": "0.1.0",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -16,12 +16,14 @@
     "@anyon/common": "*",
     "@anyon/db": "*",
     "@anyon/env": "*",
+    "@anyon/metaplex": "*",
     "@anyon/queue": "*",
+    "@anyon/shdw-drive": "*",
+    "@anyon/steam": "*",
+    "@solana/web3.js": "^1.73.3",
     "ioredis": "^5.3.1",
-    "steam-totp": "^2.1.2",
     "steam-tradeoffer-manager": "^2.10.5",
-    "steam-user": "^4.27.0",
-    "steamcommunity": "^3.44.3",
+    "steamid": "^2.0.0",
     "tsx": "^3.12.3"
   },
   "devDependencies": {
