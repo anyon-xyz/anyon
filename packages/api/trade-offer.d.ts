@@ -1,1 +1,1 @@
-/// <reference path="../../workers/steam/steam-tradeoffer-manager.d.ts" />
+/// <reference path="../steam/steam-tradeoffer-manager.d.ts" />
