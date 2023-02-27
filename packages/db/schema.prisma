@@ -35,7 +35,9 @@ model WrappedItem {
     classId         String
     instanceId      String
     marketHashName  String
-    mint            String?
+    mint            String @unique
+    signature       String @unique
+    claimed         Boolean @default(false)
     userId          String
     user            User     @relation(fields: [userId], references: [id])
 }
