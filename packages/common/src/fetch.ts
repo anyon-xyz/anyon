@@ -4,6 +4,12 @@ export interface Error {
   error?: string;
 }
 
+export const mimeTypeToExtension: { [key: string]: "jpg" | "png" | "gif" } = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+};
+
 const request = async <T extends Error>(
   endpoint: string,
   method: "POST" | "GET" = "GET",
@@ -29,4 +35,23 @@ const request = async <T extends Error>(
   );
 };
 
-export { request };
+const requestBuffer = async (
+  endpoint: string,
+  method: "POST" | "GET" = "GET",
+  headers?: Record<string, string>
+) => {
+  const response = await fetch(endpoint, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+  });
+
+  const buffer = await response.arrayBuffer();
+  const contentType = response.headers.get("Content-Type");
+
+  return { buffer, contentType };
+};
+
+export { request, requestBuffer };
