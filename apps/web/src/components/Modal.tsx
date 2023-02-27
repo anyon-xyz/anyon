@@ -1,5 +1,5 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface ModalProps {
   title?: string;
@@ -10,6 +10,7 @@ interface ModalProps {
   width?: "auto" | string;
   className?: React.ComponentProps<"div">["className"];
   onSaveSubmit?: () => void;
+  onClose?: () => void;
 }
 
 export const Modal = ({
@@ -21,6 +22,7 @@ export const Modal = ({
   className,
   description,
   onSaveSubmit,
+  onClose,
 }: ModalProps) => {
   return (
     <AnimatePresence>
@@ -86,7 +88,12 @@ export const Modal = ({
                   <button
                     className="background-transparent mr-1 mb-1 px-6 py-2 text-sm font-bold uppercase text-red-500 outline-none transition-all duration-150 ease-linear focus:outline-none"
                     type="button"
-                    onClick={() => setShowModal(false)}
+                    onClick={() => {
+                      setShowModal(false);
+                      if (onClose) {
+                        onClose();
+                      }
+                    }}
                   >
                     Close
                   </button>

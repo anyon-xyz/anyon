@@ -1,9 +1,10 @@
 import type { Description } from "@anyon/api";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { GiGlock, GiHole, GiOverdrive } from "react-icons/gi";
 import { useStore } from "../../store";
 import { Modal } from "../Modal";
 import { Stepper } from "../Stepper";
+import { MintNft } from "./MintNft";
 import { TransferItemToSteamEscrow } from "./TransferItemToSteamEscrow";
 
 interface WrapProps {
@@ -19,6 +20,10 @@ export const Wrap = ({ item }: WrapProps) => {
     })
   );
   const [step, setStep] = useState<number>(0);
+  const asset = useMemo(
+    () => getItemAssetByClassId(item.classid, item.appid, item.instanceid),
+    [getItemAssetByClassId, item.appid, item.classid, item.instanceid]
+  );
 
   const nextStep = () => setStep((prevStep) => prevStep + 1);
   const prevStep = () => {
@@ -27,14 +32,18 @@ export const Wrap = ({ item }: WrapProps) => {
 
   const wrapFlow = [
     <TransferItemToSteamEscrow
-      asset={getItemAssetByClassId(item.classid)!}
+      asset={asset}
       key={item.classid}
       item={item}
       onNext={() => nextStep()}
     />,
-    <h1 key={1} onClick={prevStep}>
-      next step
-    </h1>,
+    <MintNft
+      item={item}
+      asset={asset}
+      key={item.classid}
+      onNext={() => nextStep()}
+    />,
+    <div key={item.classid}>claim</div>,
   ];
 
   const steps = [
@@ -59,10 +68,13 @@ export const Wrap = ({ item }: WrapProps) => {
       setShowModal={setOpenWrapModal}
       title="Wrap skin into Solana NFT"
       description="Complete the steps below to wrap your skin into NFT"
+      onClose={() => setStep(0)}
     >
       <div className="flex h-auto min-h-[540px] flex-col items-center  p-5">
         <Stepper currentStep={step} steps={steps} />
-        {wrapFlow[step]}
+        <div className="flex w-full flex-col items-center px-4">
+          {wrapFlow[step]}
+        </div>
       </div>
     </Modal>
   );
