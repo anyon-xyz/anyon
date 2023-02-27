@@ -15,6 +15,10 @@ export const server = z.object({
   STEAM_SHARED_SECRET: z.string(),
   STEAM_IDENTITY_SECRET: z.string(),
   STEAM_MACHINE_NAME: z.string().optional(),
+
+  CSGO_AUTHORITY_COLLECTION_SECRET: z.string(),
+  SHDW_DRIVE_AUTHORITY: z.string(),
+
   SECRET: z.string(),
   REDIS_URL: z.string(),
 });
@@ -47,6 +51,11 @@ const processEnv: Record<
   STEAM_MACHINE_NAME: process.env.STEAM_MACHINE_NAME,
   SECRET: process.env.SECRET,
   REDIS_URL: process.env.REDIS_URL,
+
+  CSGO_AUTHORITY_COLLECTION_SECRET:
+    process.env.CSGO_AUTHORITY_COLLECTION_SECRET,
+
+  SHDW_DRIVE_AUTHORITY: process.env.SHDW_DRIVE_AUTHORITY,
 
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
