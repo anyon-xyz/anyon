@@ -10,6 +10,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@anyon/env": "*",
+    "@solana/spl-token": "^0.3.7",
+    "@solana/web3.js": "^1.73.3",
+    "bs58": "^5.0.0",
     "node-fetch": "^3.3.0"
   }
 }
