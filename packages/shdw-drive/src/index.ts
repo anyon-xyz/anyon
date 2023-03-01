@@ -1,12 +1,14 @@
+import { getConnection } from "@anyon/common";
 import * as anchor from "@project-serum/anchor";
 import { ShadowFile, ShdwDrive } from "@shadow-drive/sdk";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { env } from "./env";
 
 export const shdwDrive = async () => {
   // TODO: move to .env
-  const connection = new Connection(
-    "https://rpc.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
+  const connection = getConnection(
+    "devnet",
+    "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
   );
 
   const kp = Keypair.fromSecretKey(

@@ -1,12 +1,13 @@
+import { getConnection } from "@anyon/common";
 import { getEnv } from "@anyon/env";
 import { keypairIdentity, Metaplex } from "@metaplex-foundation/js";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 
 export const metaplex = () => {
   // TODO: move to .env
-  const connection = new Connection(
-    "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099",
-    "finalized"
+  const connection = getConnection(
+    "devnet",
+    "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
   );
   const metaplex = new Metaplex(connection);
 
