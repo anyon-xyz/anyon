@@ -2,7 +2,15 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
-  me: protectedProcedure.query(({ ctx }) => ctx.user),
+  me: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        id: ctx.user.id,
+      },
+    });
+
+    return user;
+  }),
   updateTradeOfferUrl: protectedProcedure
     .input(z.object({ steamTradeUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
