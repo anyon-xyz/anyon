@@ -12,6 +12,7 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@anyon/common": "*",
     "@anyon/db": "*",
     "@anyon/env": "*",
     "@anyon/queue": "*",
@@ -20,11 +21,12 @@
     "bs58": "^5.0.0",
     "cookie-session": "^2.0.0",
     "node-fetch": "^2.6.1",
-    "passport": "^0.6.0",
+    "passport": "^0.5.2",
     "passport-steam": "^1.0.17",
     "superjson": "1.12.2",
     "text-encoding": "^0.7.0",
     "tsx": "^3.12.3",
+    "tweetnacl": "^1.0.3",
     "ws": "^8.12.1",
     "zod": "^3.20.2"
   },

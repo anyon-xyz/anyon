@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  getConnection,
+  getSignedTokenTransferTx,
   REDIS_CHANNEL_MINT_STEAM_ITEM,
   REDIS_CHANNEL_TRANSFER_STEAM_ITEM,
+  sendSignedTransaction,
 } from "@anyon/common";
 import { JOB_NAME } from "@anyon/queue";
 import { observable } from "@trpc/server/observable";
+import bs58 from "bs58";
 import { Redis } from "ioredis";
 import { clearInterval } from "timers";
+import nacl from "tweetnacl";
 import { z } from "zod";
 
 import { env } from "../env";
@@ -80,6 +85,74 @@ export const steamRouter = createTRPCRouter({
       return {
         sucess: true,
         message: "Sent wrap request",
+      };
+    }),
+
+  claimItem: protectedProcedure
+    .input(
+      z.object({
+        assetid: z.string(),
+        instanceid: z.string(),
+        appid: z.number().int(),
+        contextid: z.string(),
+        classid: z.string(),
+        signature: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const isValidSignature = nacl.sign.detached.verify(
+        new TextEncoder().encode(`Claim item ${input.assetid}`),
+        bs58.decode(input.signature),
+        bs58.decode(ctx.user.pubkey)
+      );
+
+      if (!isValidSignature) {
+        throw new Error("Invalid signature");
+      }
+
+      const item = await ctx.prisma.wrappedItem.findFirstOrThrow({
+        where: {
+          assetId: input.assetid,
+          appId: input.appid,
+          classId: input.classid,
+          contextId: input.contextid,
+          instanceId: input.instanceid,
+          userId: ctx.user.id,
+          claimed: false,
+        },
+      });
+
+      const connection = getConnection(
+        "devnet",
+        "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
+      );
+
+      const tx = await getSignedTokenTransferTx(
+        connection,
+        item.mint,
+        ctx.user.pubkey
+      );
+
+      const signature = sendSignedTransaction({
+        signedTransaction: tx,
+        connection,
+      });
+
+      // TODO: verify tx
+      const { txid } = await signature;
+
+      await ctx.prisma.wrappedItem.update({
+        where: {
+          id: item.id,
+        },
+        data: {
+          claimed: true,
+        },
+      });
+
+      return {
+        item,
+        tx: txid,
       };
     }),
 

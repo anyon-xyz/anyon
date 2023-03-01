@@ -57,6 +57,8 @@ export const useUser = () => {
   const { mutate: updateTradeOfferUrl } =
     api.user.updateTradeOfferUrl.useMutation({
       onSuccess(data) {
+        setUser(data);
+        setShowProfileModal(false);
         toast("'steamTradeUrl' updated", {
           icon: "✅",
           style: {
@@ -64,8 +66,6 @@ export const useUser = () => {
             color: "#fff",
           },
         });
-        setUser(data);
-        setShowProfileModal(false);
       },
       onError() {
         toast.error("Failed to update. Refresh the page and try it again");

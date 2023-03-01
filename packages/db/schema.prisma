@@ -34,6 +34,8 @@ model WrappedItem {
     appId           Int
     classId         String
     instanceId      String
+    assetId         String
+    contextId       String
     marketHashName  String
     mint            String @unique
     signature       String @unique

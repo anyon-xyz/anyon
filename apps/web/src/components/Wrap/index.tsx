@@ -4,6 +4,7 @@ import { GiGlock, GiHole, GiOverdrive } from "react-icons/gi";
 import { useStore } from "../../store";
 import { Modal } from "../Modal";
 import { Stepper } from "../Stepper";
+import { Claim } from "./Claim";
 import { MintNft } from "./MintNft";
 import { TransferItemToSteamEscrow } from "./TransferItemToSteamEscrow";
 
@@ -17,6 +18,7 @@ export const Wrap = ({ item }: WrapProps) => {
       openWrapModal: state.openWrapModal,
       setOpenWrapModal: state.setOpenWrapModal,
       getItemAssetByClassId: state.getItemAssetByClassId,
+      user: state.user,
     })
   );
   const [step, setStep] = useState<number>(0);
@@ -26,9 +28,6 @@ export const Wrap = ({ item }: WrapProps) => {
   );
 
   const nextStep = () => setStep((prevStep) => prevStep + 1);
-  const prevStep = () => {
-    if (step > 0) setStep((prevStep) => prevStep - 1);
-  };
 
   const wrapFlow = [
     <TransferItemToSteamEscrow
@@ -43,7 +42,12 @@ export const Wrap = ({ item }: WrapProps) => {
       key={item.classid}
       onNext={() => nextStep()}
     />,
-    <div key={item.classid}>claim</div>,
+    <Claim
+      item={item}
+      asset={asset}
+      key={item.classid}
+      onNext={() => nextStep()}
+    />,
   ];
 
   const steps = [
