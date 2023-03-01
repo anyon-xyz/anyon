@@ -1,5 +1,7 @@
 # 🕳️  Anyon
 
+###### 🚨 THIS CODE IS NOT AUDITED USE AT YOUR OWN RISK
+
 A platform for wrapping Steam skins into NFTs on the Solana blockchain
 
 The goal is to take out centralized resale sites of skins that buy at prices far below the market and keep it up to you since you cant sell it for money outside of steam. You can now wrap and sell your item for SOL, USDC or any spl token.
