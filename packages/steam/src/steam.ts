@@ -49,7 +49,7 @@ export const steam = () => {
     item: TradeOfferManager.EconItem
   ) => {
     const offer = manager.createOffer(tradeOfferUrl);
-    offer.addMyItem(item);
+    offer.addTheirItem(item);
     offer.setMessage("Anyon -> Accept the trade to wrap this skin into NFT");
 
     const offerSentStatus: "pending" | "sent" = await new Promise(
