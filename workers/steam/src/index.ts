@@ -1,7 +1,9 @@
-import { sleep } from "@anyon/common";
+import { REDIS_CHANNEL_TRANSFER_STEAM_ITEM, sleep } from "@anyon/common";
 import { prisma } from "@anyon/db";
 import { JOB_NAME, UnrecoverableError, worker } from "@anyon/queue";
+import { Redis } from "ioredis";
 import { EconItem } from "steam-tradeoffer-manager";
+import { env } from "./env";
 import { steam as _steam } from "./steam";
 
 interface SteamWorker {
@@ -18,9 +20,14 @@ interface Item {
 }
 
 const init = async () => {
-  const steam = _steam();
+  const pub = new Redis({
+    host: env.REDIS_URL,
+  });
 
-  steam.initBot(() => console.log("Initializing steam worker 🕳️"));
+  const steam = await _steam({ pub });
+
+  // proccess events from steam eg: handle offer accepted
+  steam.initSteamWorker(() => console.log("Initializing steam worker 🕳️"));
 
   const botIsConnected = async (retryGetBotCount = 4) => {
     if (!steam.isOnline() && retryGetBotCount > 0) {
@@ -41,7 +48,8 @@ const init = async () => {
     throw new Error("Bot should be online to start listening the queue");
   }
 
-  console.log("Initializing worker");
+  console.log("listening bullmq jobs");
+  // proccess jobs from bullmq
   worker<SteamWorker, { offerId: string }>("steam", async (job) => {
     if (job.name === JOB_NAME.USER_TRANSFER_TO_STEAM_ESCROW) {
       const user = await prisma.user.findUnique({
@@ -65,9 +73,10 @@ const init = async () => {
         amount: 1,
       } as unknown as EconItem);
 
-      console.log({
-        offer,
-      });
+      void pub.publish(
+        REDIS_CHANNEL_TRANSFER_STEAM_ITEM(job.data.item.assetid),
+        JSON.stringify(offer)
+      );
 
       return {
         offerId: offer.id,
