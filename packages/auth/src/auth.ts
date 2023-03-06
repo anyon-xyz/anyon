@@ -1,8 +1,6 @@
-import { MAX_AGE_MS } from "@anyon/common";
 import type { PrismaClient, User } from "@prisma/client";
 import { PublicKey } from "@solana/web3.js";
 import b58 from "bs58";
-import { setCookie } from "cookies-next";
 import { TextDecoder } from "text-encoding";
 import nacl from "tweetnacl";
 import { signJWT } from "./jwt";
@@ -50,10 +48,6 @@ export const authUser = async (
 
   const JWT = signJWT({
     userId: user.id,
-  });
-
-  setCookie("auth-jwt", JWT, {
-    maxAge: MAX_AGE_MS, // 12h
   });
 
   return { authorization: JWT, user };

@@ -48,14 +48,9 @@ export const Header = () => {
         </a>
       </div>
 
-      {!connected ? (
+      {!user && !connected ? (
         <WalletMultiButtonDynamic className="border border-solid" />
-      ) : !user ? (
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        <button className="font-bold italic" onClick={authenticate}>
-          Sign
-        </button>
-      ) : (
+      ) : user ? (
         <div className="flex items-center">
           <div className="flex flex-col ">
             <span className="hidden font-medium sm:inline-flex">
@@ -84,6 +79,11 @@ export const Header = () => {
             className="ml-4 cursor-pointer transition duration-150 hover:fill-slate-400"
           />
         </div>
+      ) : (
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        <button className="font-bold italic" onClick={authenticate}>
+          Sign
+        </button>
       )}
     </header>
   );

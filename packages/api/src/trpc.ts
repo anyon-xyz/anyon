@@ -72,12 +72,12 @@ export const createTRPCContext = async (
   if (req.headers.cookie) {
     const cookies = req.headers.cookie.split("; ");
 
-    const authJwtPair = cookies.find((pair) => pair.startsWith("auth-jwt="));
+    const authJwt = cookies.find((pair) => pair.startsWith("auth-jwt="));
 
-    if (authJwtPair) {
+    if (authJwt) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const token = decodeURI(authJwtPair.split("=")[1]!);
+        const token = decodeURI(authJwt.split("=")[1]!);
         const payload = verifyJWT(token);
 
         const authPayload = authSchema.parse(payload);
