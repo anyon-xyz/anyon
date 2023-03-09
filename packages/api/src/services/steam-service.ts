@@ -86,6 +86,7 @@ export const getCsgoInventory = async (
   }
 
   const response = await request<CsgoInventory>(
+    // TODO: generate another api key
     `https://api.steamapis.com/steam/inventory/${steamId}/${CSGO_APP_ID}/2?api_key=_-P8rpyPpZbRDy34ec-9d5wFhOA`,
     "GET",
     {}

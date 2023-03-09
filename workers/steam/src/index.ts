@@ -1,5 +1,5 @@
 import { REDIS_CHANNEL_TRANSFER_STEAM_ITEM, sleep } from "@anyon/common";
-import { prisma } from "@anyon/db";
+import { prisma, WrappedItem } from "@anyon/db";
 import { JOB_NAME, UnrecoverableError, worker } from "@anyon/queue";
 import { Redis } from "ioredis";
 import { EconItem } from "steam-tradeoffer-manager";
@@ -8,15 +8,7 @@ import { steam as _steam } from "./steam";
 
 interface SteamWorker {
   userId: string;
-  item: Item;
-}
-
-interface Item {
-  id: string;
-  assetid: string;
-  appid: number;
-  contextid: string;
-  marketHashName: string;
+  item: WrappedItem;
 }
 
 const init = async () => {
@@ -29,7 +21,7 @@ const init = async () => {
   // proccess events from steam eg: handle offer accepted
   steam.initSteamWorker(() => console.log("Initializing steam worker 🕳️"));
 
-  const botIsConnected = async (retryGetBotCount = 4) => {
+  const botIsConnected = async (retryGetBotCount = 10) => {
     if (!steam.isOnline() && retryGetBotCount > 0) {
       console.log(`Trying to get current bot ${retryGetBotCount} more times`);
       retryGetBotCount -= 1;
@@ -66,15 +58,29 @@ const init = async () => {
         throw new UnrecoverableError("Cannot find `steamTradeUrl`");
       }
 
+      // send offer
       const offer = await steam.createOffer(user.steamTradeUrl, {
-        assetid: job.data.item.assetid,
-        appid: job.data.item.appid,
-        contextid: job.data.item.contextid,
+        assetid: job.data.item.assetId,
+        appid: job.data.item.appId,
+        contextid: job.data.item.contextId,
         amount: 1,
       } as unknown as EconItem);
 
+      console.log({
+        offer,
+      });
+
+      await prisma.wrappedItem.update({
+        where: {
+          id: job.data.item.id,
+        },
+        data: {
+          offerId: offer.id,
+        },
+      });
+
       void pub.publish(
-        REDIS_CHANNEL_TRANSFER_STEAM_ITEM(job.data.item.assetid),
+        REDIS_CHANNEL_TRANSFER_STEAM_ITEM(job.data.item.assetId),
         JSON.stringify(offer)
       );
 

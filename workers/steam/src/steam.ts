@@ -38,11 +38,11 @@ export const steam = async ({ pub }: { pub: Redis }) => {
 
   const drive = await shdwDrive();
 
-  const mintItem = async (offer: TradeOfferManager.TradeOffer) => {
+  const mintSteamItem = async (offer: TradeOfferManager.TradeOffer) => {
     const { sentItems } = await getReceivedItems(offer);
 
     const sent = sentItems[0];
-
+    // TODO: change to receive
     if (sent) {
       const steamid = SteamID.fromIndividualAccountID(offer.partner);
 
@@ -145,15 +145,19 @@ export const steam = async ({ pub }: { pub: Redis }) => {
           new PublicKey(CSGO_COLLECTION_PK_DEVNET)
         );
 
-        await prisma.wrappedItem.create({
+        const item = await prisma.wrappedItem.findUniqueOrThrow({
+          where: {
+            offerId: offer.id,
+          },
+        });
+
+        await prisma.wrappedItem.update({
+          where: {
+            id: item.id,
+          },
           data: {
-            appId: Number(sent.appid),
-            classId: sent.classid,
-            instanceId: sent.instanceid,
-            marketHashName: sent.market_hash_name,
             mint: nft.address.toBase58(),
             signature: response.signature,
-            userId: user.id,
           },
         });
 
@@ -174,41 +178,37 @@ export const steam = async ({ pub }: { pub: Redis }) => {
     }
   };
 
-  const onOfferAccepted = async (offer: TradeOfferManager.TradeOffer) => {
+  const onOfferAccepted = (_offer: TradeOfferManager.TradeOffer) => {
     // for now it will only be possible with 1 item
-    const { receivedItems, sentItems } = await getReceivedItems(offer);
 
-    const received = receivedItems[0];
-    const sent = sentItems[0];
+    console.log("on offer accepted");
+  };
 
-    const steamid = SteamID.fromIndividualAccountID(offer.partner);
-
-    const user = await prisma.user.findUnique({
+  const onOfferEscrow = async (offer: TradeOfferManager.TradeOffer) => {
+    const item = await prisma.wrappedItem.update({
       where: {
-        steamId: steamid.toString(),
+        offerId: offer.id,
+      },
+      data: {
+        inEscrow: true,
+        escrowEnds: offer.escrowEnds,
       },
     });
 
-    if (!user) {
-      throw new Error(
-        `User with steamid ${steamid.toString()} does not exists`
-      );
-    }
+    return item;
+  };
 
-    if (received) {
-      // void pub.publish(received.assetid, JSON.stringify(received));
+  const onOfferDeclined = async (offer: TradeOfferManager.TradeOffer) => {
+    const item = await prisma.wrappedItem.update({
+      where: {
+        offerId: offer.id,
+      },
+      data: {
+        declined: true,
+      },
+    });
 
-      console.log(`Received item ${received.assetid}`);
-    }
-
-    if (sent) {
-      // TODO: change to received
-      void pub.publish(
-        REDIS_CHANNEL_TRANSFER_STEAM_ITEM(sent.assetid),
-        JSON.stringify(offer)
-      );
-      console.log(`Sent item ${sent.assetid}`);
-    }
+    return item;
   };
 
   const initSteamWorker = (cb: () => void) => {
@@ -224,11 +224,29 @@ export const steam = async ({ pub }: { pub: Redis }) => {
     });
 
     manager.on("sentOfferChanged", (offer) => {
+      if (offer.itemsToReceive[0] && offer.itemsToReceive[0].assetid) {
+        void pub.publish(
+          REDIS_CHANNEL_TRANSFER_STEAM_ITEM(offer.itemsToReceive[0].assetid),
+          JSON.stringify(offer)
+        );
+      }
+
+      // if (offer.itemsToGive[0] && offer.itemsToGive[0].assetid) {
+      //   void pub.publish(
+      //     REDIS_CHANNEL_TRANSFER_STEAM_ITEM(offer.itemsToGive[0].assetid),
+      //     JSON.stringify(offer)
+      //   );
+      // }
+
       if (offer.state === TradeOfferManager.ETradeOfferState.Accepted) {
         // notify that the offer has accepted
         void onOfferAccepted(offer);
         // mint the nft
-        void mintItem(offer);
+        void mintSteamItem(offer);
+      } else if (offer.state === TradeOfferManager.ETradeOfferState.InEscrow) {
+        void onOfferEscrow(offer);
+      } else if (offer.state === TradeOfferManager.ETradeOfferState.Declined) {
+        void onOfferDeclined(offer);
       } else {
         console.log("unexpected state - ", offer.state);
       }
