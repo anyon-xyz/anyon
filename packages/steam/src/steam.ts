@@ -50,12 +50,18 @@ export const steam = () => {
   ) => {
     const offer = manager.createOffer(tradeOfferUrl);
     offer.addTheirItem(item);
-    offer.setMessage("Anyon -> Accept the trade to wrap this skin into NFT");
+    offer.setMessage(
+      "Anyon -> Accept the trade offer to wrap this skin into Solana NFT"
+    );
 
     const offerSentStatus: "pending" | "sent" = await new Promise(
       (resolve, reject) => {
         offer.send((err, status) => {
-          if (err) reject(err);
+          if (err) {
+            // TODO: handle THIS
+            console.log(err);
+            reject(err);
+          }
 
           resolve(status);
         });

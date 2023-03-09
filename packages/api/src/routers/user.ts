@@ -3,7 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.prisma.user.findUnique({
+    const user = await ctx.prisma.user.findUniqueOrThrow({
       where: {
         id: ctx.user.id,
       },

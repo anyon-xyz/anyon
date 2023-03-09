@@ -62,16 +62,33 @@ export const steamRouter = createTRPCRouter({
         id: z.string(),
         assetid: z.string(),
         appid: z.number().int(),
+        classid: z.string(),
         contextid: z.string(),
+        instanceid: z.string(),
         marketHashName: z.string(),
+        steamIconurl: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const wrapItem = await ctx.prisma.wrappedItem.create({
+        data: {
+          appId: input.appid,
+          classId: input.classid,
+          assetId: input.assetid,
+          contextId: input.contextid,
+          inEscrow: false,
+          instanceId: input.instanceid,
+          marketHashName: input.marketHashName,
+          userId: ctx.user.id,
+          steamIconUrl: input.steamIconurl,
+        },
+      });
+
       await ctx.queue.steam.add(
         JOB_NAME.USER_TRANSFER_TO_STEAM_ESCROW,
         {
           userId: ctx.user.id,
-          item: { ...input },
+          item: wrapItem,
         },
         {
           attempts: 5,
@@ -84,6 +101,7 @@ export const steamRouter = createTRPCRouter({
 
       return {
         sucess: true,
+        wrapItem,
         message: "Sent wrap request",
       };
     }),
@@ -119,6 +137,7 @@ export const steamRouter = createTRPCRouter({
           instanceId: input.instanceid,
           userId: ctx.user.id,
           claimed: false,
+          declined: null,
         },
       });
 
@@ -126,6 +145,10 @@ export const steamRouter = createTRPCRouter({
         "devnet",
         "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
       );
+
+      if (!item.mint) {
+        throw new Error("Item not minted yet");
+      }
 
       const tx = await getSignedTokenTransferTx(
         connection,
@@ -156,6 +179,20 @@ export const steamRouter = createTRPCRouter({
       };
     }),
 
+  wrappedItems: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.user.steamId) {
+      throw new Error("Steam account not linked yet");
+    }
+
+    const items = await ctx.prisma.wrappedItem.findMany({
+      where: {
+        userId: ctx.user.id,
+      },
+    });
+
+    return items;
+  }),
+
   randomNumber: publicProcedure.subscription(() => {
     return observable<number>((emit) => {
       const int = setInterval(() => {
@@ -185,13 +222,8 @@ export const steamRouter = createTRPCRouter({
         });
 
         return () => {
-          void redis.off(
-            REDIS_CHANNEL_TRANSFER_STEAM_ITEM(input.assetid),
-            (_err: any, message: string) => {
-              const offer = JSON.parse(message) as TradeOfferManager.TradeOffer;
-
-              onWrap(offer);
-            }
+          void redis.unsubscribe(
+            REDIS_CHANNEL_TRANSFER_STEAM_ITEM(input.assetid)
           );
         };
       });
@@ -228,19 +260,7 @@ export const steamRouter = createTRPCRouter({
         });
 
         return () => {
-          void redis.off(
-            REDIS_CHANNEL_MINT_STEAM_ITEM(input.assetid),
-            (_err: any, message: string) => {
-              const offer = JSON.parse(
-                message
-              ) as TradeOfferManager.TradeOffer & {
-                nftMint: string;
-                signature: string;
-              };
-
-              onMint(offer);
-            }
-          );
+          void redis.unsubscribe(REDIS_CHANNEL_MINT_STEAM_ITEM(input.assetid));
         };
       });
     }),

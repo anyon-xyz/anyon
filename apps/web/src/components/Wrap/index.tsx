@@ -28,6 +28,7 @@ export const Wrap = ({ item }: WrapProps) => {
   );
 
   const nextStep = () => setStep((prevStep) => prevStep + 1);
+  const prevStep = () => setStep((prevStep) => prevStep - 1);
 
   const wrapFlow = [
     <TransferItemToSteamEscrow
@@ -35,6 +36,7 @@ export const Wrap = ({ item }: WrapProps) => {
       key={item.classid}
       item={item}
       onNext={() => nextStep()}
+      onPrev={() => prevStep()}
     />,
     <MintNft
       item={item}

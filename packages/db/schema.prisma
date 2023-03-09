@@ -37,9 +37,15 @@ model WrappedItem {
     assetId         String
     contextId       String
     marketHashName  String
-    mint            String @unique
-    signature       String @unique
+    steamIconUrl    String
+    mint            String? @unique
+    signature       String? @unique
+    offerId         String? @unique
     claimed         Boolean @default(false)
+    declined        Boolean? @default(false)
+    escrowEnds      DateTime?
+    inEscrow        Boolean
+    // inEscrow        Boolean
     userId          String
     user            User     @relation(fields: [userId], references: [id])
 }

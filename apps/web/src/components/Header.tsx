@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { BsGear } from "react-icons/bs";
 import { useUser } from "../hooks/useUser";
 import { useStore } from "../store";
@@ -17,10 +18,16 @@ const WalletMultiButtonDynamic = dynamic(
 export const Header = () => {
   const user = useStore((state) => state.user);
   const setShowProfileModal = useStore((state) => state.setShowProfileModal);
-  const { connected } = useWallet();
+  const { publicKey, connected } = useWallet();
   const { logout, authenticate } = useUser();
   const router = useRouter();
   const currentRoute = router.pathname;
+
+  useEffect(() => {
+    if (publicKey && !user) {
+      void authenticate();
+    }
+  }, [publicKey, user, authenticate]);
 
   return (
     <header className="flex w-full items-center justify-between border-b border-gray-200 px-4 py-4 md:px-16">
@@ -40,9 +47,15 @@ export const Header = () => {
         >
           Home
         </Link>
-        <a className="cursor-not-allowed text-sm font-medium text-gray-500 sm:text-base">
-          Nfts Wrapped
-        </a>
+
+        <Link
+          href={"/wrapped-items"}
+          className={`text-sm font-medium hover:underline sm:text-base ${
+            currentRoute === "/wrapped-items" ? "text-white" : "text-gray-500"
+          }`}
+        >
+          Items Wrapped
+        </Link>
         <a className="cursor-not-allowed text-sm font-medium text-gray-500 sm:text-base">
           Inventory
         </a>
