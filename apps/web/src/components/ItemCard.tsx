@@ -24,7 +24,9 @@ export const ItemCard = ({ item, onWrap }: ItemCardProps) => (
         key={item.classid}
         width={150}
         height={150}
-        src={`https://steamcommunity-a.akamaihd.net/economy/image/${item.icon_url_large}`}
+        src={`https://steamcommunity-a.akamaihd.net/economy/image/${
+          item.icon_url_large || item.icon_url
+        }`}
         alt="item"
       />
       {/* stickers */}
