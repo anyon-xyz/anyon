@@ -137,7 +137,7 @@ export const steamRouter = createTRPCRouter({
           instanceId: input.instanceid,
           userId: ctx.user.id,
           claimed: false,
-          declined: null,
+          declined: false,
         },
       });
 
