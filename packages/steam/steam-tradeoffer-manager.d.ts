@@ -180,9 +180,19 @@ declare namespace TradeOfferManager {
     marketable: boolean;
     commodity: boolean;
     market_tradable_restriction: number;
-    descriptions: any;
+    descriptions: {
+      type: string;
+      value: string;
+      color: string;
+    }[];
     fraudwarnings: string[];
-    tags: any;
+    tags: {
+      internal_name: string;
+      name: string;
+      category: string;
+      color: string;
+      category_name: string;
+    }[];
     app_data: any;
 
     getImageURL(): string;
