@@ -24,7 +24,7 @@ export const genItemImage = async (
       ctx.drawImage(image, currentX, itemImg.height + 35, 180, 150);
     });
 
-    // fs.writeFileSync("./image-test.png", canvas.toBuffer("image/png"));
+    // fs.writeFileSync("./generated/dragon-lore.png", canvas.toBuffer("image/png"));
   }
 
   return canvas.toBuffer("image/png");
