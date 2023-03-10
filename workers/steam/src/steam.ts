@@ -1,25 +1,46 @@
 import {
   CSGO_COLLECTION_PK_DEVNET,
-  mimeTypeToExtension,
+  getStickerImageFromCsgoDescription,
   REDIS_CHANNEL_MINT_STEAM_ITEM,
   REDIS_CHANNEL_TRANSFER_STEAM_ITEM,
-  requestBuffer,
   SHDW_DRIVE_PK,
 } from "@anyon/common";
 import { prisma } from "@anyon/db";
 import { metaplex as _metaplex } from "@anyon/metaplex";
 import { shdwDrive } from "@anyon/shdw-drive";
-import { steam as _steam } from "@anyon/steam";
+import { genItemImage, steam as _steam } from "@anyon/steam";
 import { PublicKey } from "@solana/web3.js";
 import { Redis } from "ioredis";
 import TradeOfferManager from "steam-tradeoffer-manager";
-import SteamID from "steamid";
 
-const getImage = (appid: string, marketHashname: string) =>
-  requestBuffer(
-    `https://api.steamapis.com/image/item/${appid}/${marketHashname}`,
-    "GET"
-  );
+// export interface Item {
+//   nameID: number;
+//   appID: number;
+//   market_name: string;
+//   market_hash_name: string;
+//   url: string;
+//   assetInfo: {
+//     descriptions: {
+//       type: string;
+//       value: string;
+//       color: string;
+//     }[];
+//   };
+//   updated_at: number;
+//   error?: string;
+// }
+
+// const getImage = (appid: string, marketHashname: string) =>
+//   requestBuffer(
+//     `https://api.steamapis.com/image/item/${appid}/${marketHashname}`,
+//     "GET"
+//   );
+
+// const getItem = (appid: string, marketHashname: string) =>
+//   request<Item>(
+//     `https://api.steamapis.com/market/item/${appid}/${marketHashname}?api_key=_-P8rpyPpZbRDy34ec-9d5wFhOA`,
+//     "GET"
+//   );
 
 export const steam = async ({ pub }: { pub: Redis }) => {
   const {
@@ -44,31 +65,30 @@ export const steam = async ({ pub }: { pub: Redis }) => {
     const sent = sentItems[0];
     // TODO: change to receive
     if (sent) {
-      const steamid = SteamID.fromIndividualAccountID(offer.partner);
-
       const user = await prisma.user.findUnique({
         where: {
-          steamId: steamid.toString(),
+          steamId: offer.partner.toString(),
         },
       });
 
       if (!user) {
         throw new Error(
-          `User with steamid ${steamid.toString()} does not exists`
+          `User with steamid ${offer.partner.toString()} does not exists`
         );
       }
 
-      const { buffer: imageBuffer, contentType } = await getImage(
-        sent.appid,
-        sent.market_hash_name
-      );
-
-      if (!contentType) {
-        throw new Error("invalid image response");
+      // eslint-disable-next-line prefer-const
+      let stickerImgs: string[] = [];
+      if (sent.descriptions) {
+        stickerImgs.push(
+          ...getStickerImageFromCsgoDescription(sent.descriptions)
+        );
       }
-      const ext = mimeTypeToExtension[contentType];
 
-      const buffer = Buffer.from(imageBuffer);
+      const imageBuffer = await genItemImage(
+        `https://api.steamapis.com/image/item/${sent.appid}/${sent.market_hash_name}`,
+        stickerImgs
+      );
 
       const idSize = sent.id.length;
 
@@ -82,8 +102,8 @@ export const steam = async ({ pub }: { pub: Redis }) => {
       const { finalized_locations, upload_errors } = await drive.uploadFile(
         new PublicKey(SHDW_DRIVE_PK),
         {
-          name: `${sent.id} - dev.${ext || "png"}`,
-          file: buffer,
+          name: `${sent.id} - dev.png`,
+          file: imageBuffer,
         }
       );
 
@@ -95,7 +115,14 @@ export const steam = async ({ pub }: { pub: Redis }) => {
         );
       }
 
-      const metadata = metaplex.createMetadata(name, imageUrl, contentType, [
+      const now = new Date();
+      const time = now.setDate(now.getDate() + 7);
+
+      const wear = sent.tags.find((tag) =>
+        tag.internal_name.includes("WearCategory")
+      );
+
+      const metadata = metaplex.createMetadata(name, imageUrl, "image/png", [
         {
           trait_type: "id",
           value: sent.id,
@@ -104,6 +131,11 @@ export const steam = async ({ pub }: { pub: Redis }) => {
           trait_type: "market_hash_name",
           value: sent.market_hash_name,
         },
+        {
+          trait_type: "wear",
+          value: wear ? wear.name : "none",
+        },
+        // TODO: should we keep new_assetid or current asset id?
         {
           trait_type: "assetid",
           value: sent.assetid,
@@ -119,6 +151,10 @@ export const steam = async ({ pub }: { pub: Redis }) => {
         {
           trait_type: "contextid",
           value: sent.contextid,
+        },
+        {
+          trait_type: "locked_until",
+          value: String(time),
         },
       ]);
 
@@ -231,12 +267,12 @@ export const steam = async ({ pub }: { pub: Redis }) => {
         );
       }
 
-      // if (offer.itemsToGive[0] && offer.itemsToGive[0].assetid) {
-      //   void pub.publish(
-      //     REDIS_CHANNEL_TRANSFER_STEAM_ITEM(offer.itemsToGive[0].assetid),
-      //     JSON.stringify(offer)
-      //   );
-      // }
+      if (offer.itemsToGive[0] && offer.itemsToGive[0].assetid) {
+        void pub.publish(
+          REDIS_CHANNEL_TRANSFER_STEAM_ITEM(offer.itemsToGive[0].assetid),
+          JSON.stringify(offer)
+        );
+      }
 
       if (offer.state === TradeOfferManager.ETradeOfferState.Accepted) {
         // notify that the offer has accepted
