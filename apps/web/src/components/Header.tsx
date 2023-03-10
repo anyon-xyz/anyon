@@ -50,8 +50,8 @@ export const Header = () => {
 
         <Link
           href={"/wrapped-items"}
-          className={`text-sm font-medium hover:underline sm:text-base ${
-            currentRoute === "/wrapped-items" ? "text-white" : "text-gray-500"
+          className={`text-sm font-medium hover:underline sm:text-base hover:text-white ${
+            currentRoute === "/wrapped-items" ? "text-white" : "text-gray-400"
           }`}
         >
           Items Wrapped
