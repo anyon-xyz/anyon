@@ -4,11 +4,9 @@
 
 A platform for wrapping Steam skins into NFTs on the Solana blockchain
 
-The goal is to take out centralized resale sites of skins that buy at prices far below the market and keep it up to you since you cant sell it for money outside of steam. You can now wrap and sell your item for SOL, USDC or any spl token.
-
 ## Running locally
 
-- Create `.env` file
+- Create and fill `.env` file. See `.env.example`
 
 ```sh
 $ docker-compose up --build -d
@@ -26,11 +24,12 @@ Also, once wrapped, the user will be able to sell the NFT for SOL/USDC and will 
 ## Mvp goals
   - Wrap and unwrap csgo skins
   - List wrapped skins in solana marketplaces
-  - Images tags - locked or unlocked - 7d after the wrap
+  - Images tags or attributes - locked  unlocked - 7d after the wrap
   
 ## Ideas
   - Build our own marketplace inside the app for better user experience
-  - Update image tag using [Clockwork](https://www.clockwork.xyz/)
+  - Create image tags (locked/unlocked) and update using [Clockwork](https://www.clockwork.xyz/)
+  - Fractionelized NFT Item eg. 100 Dragon lore NFT = 1 Dragon Lore
 
 
 ## License
