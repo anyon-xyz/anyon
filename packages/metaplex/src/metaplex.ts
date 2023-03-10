@@ -33,7 +33,10 @@ export const metaplex = () => {
     name: string,
     image: string,
     imageType: string,
-    attributes: { trait_type: string; value: string }[]
+    attributes: {
+      trait_type: string;
+      value: string;
+    }[]
   ) => {
     return {
       name,
