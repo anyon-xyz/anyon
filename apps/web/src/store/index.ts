@@ -1,9 +1,9 @@
 import type { StateCreator } from "zustand";
 import { create as _create } from "zustand";
-import type { UserSlice } from "./createUserSlice";
-import { createUserSlice } from "./createUserSlice";
 import type { InventorySlice } from "./createInventorySlice";
 import { createInventorySlice } from "./createInventorySlice";
+import type { UserSlice } from "./createUserSlice";
+import { createUserSlice } from "./createUserSlice";
 
 const resetters: (() => void)[] = [];
 

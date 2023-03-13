@@ -1,4 +1,12 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "index.ts"]
+  "compilerOptions": {
+    "incremental": false,
+    /* EMIT RULES */
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src", "index.ts", "tsup.config.ts"]
 }

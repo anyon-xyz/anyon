@@ -1,5 +1,5 @@
 import { getEnv } from "@anyon/env";
-import { Wallet } from "@project-serum/anchor";
+import * as anchor from "@project-serum/anchor";
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -209,7 +209,7 @@ export const getSignedTokenTransferTx = async (
     Uint8Array.from(JSON.parse(env.CSGO_AUTHORITY_COLLECTION_SECRET) as any[])
   );
 
-  const wallet = new Wallet(kp);
+  const wallet = new anchor.Wallet(kp);
 
   const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,

@@ -7,9 +7,7 @@
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
-    "build": "tsc --project tsconfig.server.json",
-    "type-check": "tsc --noEmit",
-    "with-env": "dotenv -e ../../.env --"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@anyon/common": "*",

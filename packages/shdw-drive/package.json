@@ -1,10 +1,13 @@
 {
   "name": "@anyon/shdw-drive",
   "version": "0.1.0",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
+    "build": "tsup",
+    
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
     "type-check": "tsc --noEmit"
@@ -15,5 +18,8 @@
     "@project-serum/anchor": "^0.26.0",
     "@shadow-drive/sdk": "^3.1.1",
     "@solana/web3.js": "^1.73.3"
+  },
+  "devDependencies": {
+    "tsup": "^6.6.0"
   }
 }

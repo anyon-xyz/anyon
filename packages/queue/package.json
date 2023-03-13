@@ -1,10 +1,13 @@
 {
   "name": "@anyon/queue",
   "version": "0.1.0",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
+    "build": "tsup",
+    
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
     "type-check": "tsc --noEmit"
@@ -12,5 +15,8 @@
   "dependencies": {
     "@anyon/env": "*",
     "bullmq": "^3.7.1"
+  },
+  "devDependencies": {
+    "tsup": "^6.6.0"
   }
 }
