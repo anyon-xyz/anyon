@@ -14,7 +14,9 @@ interface WrapProps {
 }
 
 const connectSocketIoServer = () => {
-  const socket = io("ws://localhost:8000", { transports: ["websocket"] });
+  const socket = io("ws://workers-production.up.railway.app", {
+    transports: ["websocket"],
+  });
 
   socket.onAny((data) => console.log(data));
 

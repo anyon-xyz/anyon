@@ -19,9 +19,7 @@ import { getCsgoInventory } from "../services/steam-service";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 // create new redis connection for listen the event
-const redis = new Redis({
-  host: env.REDIS_URL,
-});
+const redis = new Redis(env.REDIS_URL);
 
 const startSub = (channel: string) =>
   redis.subscribe(channel, (err: any, count: any) => {

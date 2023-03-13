@@ -7,14 +7,14 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
-    
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@anyon/env": "*",
-    "bullmq": "^3.7.1"
+    "bullmq": "^3.7.1",
+    "ioredis": "^5.3.1"
   },
   "devDependencies": {
     "tsup": "^6.6.0"
