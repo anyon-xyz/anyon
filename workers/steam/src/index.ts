@@ -12,9 +12,7 @@ interface SteamWorker {
 }
 
 const init = async () => {
-  const pub = new Redis({
-    host: env.REDIS_URL,
-  });
+  const pub = new Redis(env.REDIS_URL);
 
   const steam = await _steam({ pub });
 
@@ -59,16 +57,15 @@ const init = async () => {
       }
 
       // send offer
-      const offer = await steam.createOffer(user.steamTradeUrl, {
-        assetid: job.data.item.assetId,
-        appid: job.data.item.appId,
-        contextid: job.data.item.contextId,
-        amount: 1,
-      } as unknown as EconItem);
-
-      console.log({
-        offer,
-      });
+      const offer = await steam.createOffer(
+        "https://steamcommunity.com/tradeoffer/new/?partner=1146723903&token=W6iLOsx7",
+        {
+          assetid: job.data.item.assetId,
+          appid: job.data.item.appId,
+          contextid: job.data.item.contextId,
+          amount: 1,
+        } as unknown as EconItem
+      );
 
       await prisma.wrappedItem.update({
         where: {
