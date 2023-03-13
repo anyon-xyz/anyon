@@ -37,8 +37,12 @@ const Home: NextPage = () => {
     showProfileModal: state.showProfileModal,
     setOpenWrapModal: state.setOpenWrapModal,
   }));
-  const { isLoadingInventory, onRefetchInventory, setSearchInventoryItem } =
-    useInventory();
+  const {
+    isLoadingInventory,
+    onRefetchInventory,
+    setSearchInventoryItem,
+    refetchInventory,
+  } = useInventory();
   const { authenticate } = useUser();
 
   const _ = api.user.me.useQuery(
@@ -89,7 +93,13 @@ const Home: NextPage = () => {
           {user && user.steamId && (
             <div className="flex gap-4 items-center mt-2 ml-auto w-full">
               <input
-                onChange={(e) => setSearchInventoryItem(e.target.value)}
+                onChange={(e) => {
+                  setSearchInventoryItem(e.target.value);
+
+                  if (e.target.value.length === 0) {
+                    void refetchInventory();
+                  }
+                }}
                 className="appearance-none block w-full bg-transparent text-white border border-gray-700 rounded py-3 px-5 leading-tight focus:outline-none focus:border-white"
                 type="text"
                 placeholder="Search skin"

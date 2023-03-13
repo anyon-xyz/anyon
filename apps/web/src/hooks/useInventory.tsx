@@ -106,8 +106,6 @@ export const useInventory = () => {
         const searchItemResult = searchItemByName(debouncedSearchInventoryItem);
 
         setCsgoInventory(searchItemResult || ([] as unknown as CsgoInventory));
-      } else {
-        void refetch();
       }
     },
 
@@ -120,5 +118,6 @@ export const useInventory = () => {
     isLoadingInventory,
     onRefetchInventory,
     setSearchInventoryItem,
+    refetchInventory: refetch,
   };
 };
