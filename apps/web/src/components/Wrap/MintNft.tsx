@@ -1,42 +1,37 @@
 import type { Asset, Description } from "@anyon/api";
-import { toast } from "react-hot-toast";
+import { REDIS_CHANNEL_MINT_STEAM_ITEM } from "@anyon/common";
+import { useEffect } from "react";
 import { Puff } from "react-loading-icons";
-import { api } from "~/utils/api";
+import { Socket } from "socket.io-client";
 import { Item } from "./Item";
 
 interface TransferItemToSteamEscrowProps {
   item: Description;
   asset: Asset;
   onNext: () => void;
+  socket: Socket | null;
 }
 
 export const MintNft = ({
   item,
   onNext,
   asset,
+  socket,
 }: TransferItemToSteamEscrowProps) => {
-  api.steam.onMintItemNft.useSubscription(
-    { assetid: asset.assetid },
-    {
-      onData(data) {
-        if (data.state === 3 && data.nftMint) {
-          toast("NFT Minted", {
-            icon: "✅",
-            style: {
-              background: "#333",
-              color: "#fff",
-            },
-          });
-          onNext();
-        }
+  useEffect(() => {
+    if (socket) {
+      socket.on(REDIS_CHANNEL_MINT_STEAM_ITEM(asset.assetid), () => {
+        console.log("minted");
+        onNext();
+        return;
+      });
+      socket.emit("mint-item", { assetid: asset.assetid });
 
-        console.log(data);
-      },
-      onError(e) {
-        console.log(e);
-      },
+      return () => {
+        socket.off(REDIS_CHANNEL_MINT_STEAM_ITEM(asset.assetid))
+      };
     }
-  );
+  }, [asset.assetid, onNext, socket]);
 
   return (
     <>

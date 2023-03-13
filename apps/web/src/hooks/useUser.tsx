@@ -6,16 +6,16 @@ import { toast } from "react-hot-toast";
 import { api } from "~/utils/api";
 import { resetAllStores, useStore } from "../store";
 
-export const useMeQuery = () => {
-  const meQuery = api.user.me.useQuery(undefined, {
-    retry(failureCount) {
-      return failureCount > 3;
-    },
-    refetchOnWindowFocus: false,
-  });
+// export const useMeQuery = () => {
+//   const meQuery = api.user.me.useQuery(undefined, {
+//     retry(failureCount) {
+//       return failureCount > 3;
+//     },
+//     refetchOnWindowFocus: false,
+//   });
 
-  return meQuery;
-};
+//   return meQuery;
+// };
 
 export const useUser = () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method

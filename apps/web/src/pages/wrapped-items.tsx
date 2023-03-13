@@ -52,7 +52,7 @@ const WrappedItems: NextPage = () => {
 
   return (
     <Container>
-      <div className="flex flex-col items-center gap-5 flex-row">
+      <div className="flex flex-col items-center gap-5">
         <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-[3rem]">
           My wrapped items
         </h1>

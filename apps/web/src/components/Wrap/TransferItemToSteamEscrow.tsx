@@ -1,7 +1,10 @@
 import type { Asset, Description } from "@anyon/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { REDIS_CHANNEL_TRANSFER_STEAM_ITEM } from "@anyon/common";
 import { toast } from "react-hot-toast";
 import { Puff } from "react-loading-icons";
+import { Socket } from "socket.io-client";
 import { api } from "~/utils/api";
 import { Item } from "./Item";
 
@@ -10,12 +13,14 @@ interface TransferItemToSteamEscrowProps {
   asset: Asset;
   onNext: () => void;
   onPrev: () => void;
+  socket: Socket | null;
 }
 
 export const TransferItemToSteamEscrow = ({
   item,
   asset,
   onNext,
+  socket,
 }: TransferItemToSteamEscrowProps) => {
   const [sentTradeOffer, setSentTradeOffer] = useState<boolean>(false);
   const [tradeErrorMsg, setTradeErrorMsg] = useState<string>("");
@@ -36,75 +41,80 @@ export const TransferItemToSteamEscrow = ({
     },
   });
 
-  api.steam.onSentTradeOffer.useSubscription(
-    { assetid: asset.assetid },
-    {
-      onData(data) {
-        const successfullyToast = (msg: string) =>
-          toast(msg, {
-            icon: "✅",
-            style: {
-              background: "#333",
-              color: "#fff",
-            },
-          });
+  useEffect(() => {
+    if (socket) {
+      socket.on("connect", () => console.log("Connected"));
+      socket.emit("transfer-steam-item", { assetid: asset.assetid });
+      socket.on(
+        REDIS_CHANNEL_TRANSFER_STEAM_ITEM(asset.assetid),
+        (data: { state: number; escrowEnds: string }) => {
+          const successfullyToast = (msg: string) =>
+            toast(msg, {
+              icon: "✅",
+              style: {
+                background: "#333",
+                color: "#fff",
+              },
+            });
 
-        const failedToast = (msg: string) =>
-          toast(msg, {
-            icon: "❌",
-            style: {
-              background: "#333",
-              color: "#fff",
-            },
-          });
+          const failedToast = (msg: string) =>
+            toast(msg, {
+              icon: "❌",
+              style: {
+                background: "#333",
+                color: "#fff",
+              },
+            });
 
-        // TODO: change to ETradeOfferState enum
-        switch (data.state) {
-          case 3: {
-            setIsWaitingTradeConfirmation(false);
-            successfullyToast("Trade offer successfully confirmed");
-            onNext();
-            return;
-          }
-          case 9:
-          case 2: {
-            setIsWaitingTradeConfirmation(true);
-            return successfullyToast("Trade offer sent");
-          }
-          case 7: {
-            setIsWaitingTradeConfirmation(false);
-            setSentTradeOffer(false);
-            setTradeErrorMsg(
-              "You declined the trade offer, send again if you wanna proceed"
-            );
-            failedToast("Trade offer declined");
-            return;
-          }
-          case 11: {
-            setIsWaitingTradeConfirmation(false);
-            setSentTradeOffer(false);
-            setTradeWarnMsg(
-              `The trade is in steam escrow because you don't have steam guard active for the 7 days.\nEscrow ends in ${new Date(
-                data.escrowEnds
-              ).toLocaleDateString("en-US", {
-                weekday: "short",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}\nAfter this date, if the trade is not cancelled, you can claim your nft when the trade is completed`
-            );
-            return successfullyToast("Trade offer successfully confirmed");
-          }
-          default: {
-            return failedToast("Unexpected state");
+          // TODO: change to ETradeOfferState enum
+          switch (data.state) {
+            case 3: {
+              setIsWaitingTradeConfirmation(false);
+              successfullyToast("Trade offer successfully confirmed");
+              onNext();
+              return;
+            }
+            case 9:
+            case 2: {
+              setIsWaitingTradeConfirmation(true);
+              return successfullyToast("Trade offer sent");
+            }
+            case 7: {
+              setIsWaitingTradeConfirmation(false);
+              setSentTradeOffer(false);
+              setTradeErrorMsg(
+                "You declined the trade offer, send again if you wanna proceed"
+              );
+              failedToast("Trade offer declined");
+              return;
+            }
+            case 11: {
+              setIsWaitingTradeConfirmation(false);
+              setSentTradeOffer(false);
+              setTradeWarnMsg(
+                `The trade is in steam escrow because you don't have steam guard active for the 7 days.\nEscrow ends in ${new Date(
+                  data.escrowEnds
+                ).toLocaleDateString("en-US", {
+                  weekday: "short",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}\nAfter this date, if the trade is not cancelled, you can claim your nft when the trade is completed`
+              );
+              return successfullyToast("Trade offer successfully confirmed");
+            }
+            default: {
+              return failedToast("Unexpected state");
+            }
           }
         }
-      },
-      onError(e) {
-        console.log(e);
-      },
+      );
+
+      return () => {
+        socket.off(REDIS_CHANNEL_TRANSFER_STEAM_ITEM(asset.assetid));
+      };
     }
-  );
+  }, [asset.assetid, onNext, socket]);
 
   return (
     <>

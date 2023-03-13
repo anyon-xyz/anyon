@@ -24,6 +24,8 @@ export const Modal = ({
   onSaveSubmit,
   onClose,
 }: ModalProps) => {
+  if (!showModal) return null;
+
   return (
     <AnimatePresence>
       {showModal && (

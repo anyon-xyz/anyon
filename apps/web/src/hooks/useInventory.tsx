@@ -111,6 +111,7 @@ export const useInventory = () => {
       }
     },
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [debouncedSearchInventoryItem] // Only call effect if debounced search term changes
   );
 

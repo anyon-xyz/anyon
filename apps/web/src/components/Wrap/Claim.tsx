@@ -11,14 +11,9 @@ import { Item } from "./Item";
 interface TransferItemToSteamEscrowProps {
   item: Description;
   asset: Asset;
-  onNext: () => void;
 }
 
-export const Claim = ({
-  item,
-  onNext,
-  asset,
-}: TransferItemToSteamEscrowProps) => {
+export const Claim = ({ item, asset }: TransferItemToSteamEscrowProps) => {
   const { signMessage } = useWallet();
   const { connection } = useConnection();
   const [isExploding, setIsExploding] = useState<boolean>(false);

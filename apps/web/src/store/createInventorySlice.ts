@@ -7,7 +7,7 @@ export interface InventorySlice {
   openWrapModal: boolean;
   setOpenWrapModal: (openWrapModal: boolean) => void;
   selectItemToWrap: Description | null;
-  setSelectItemToWrap: (item: Description) => void;
+  setSelectItemToWrap: (item: Description | null) => void;
   getItemAssetByClassId: (
     classId: string,
     appId: number,

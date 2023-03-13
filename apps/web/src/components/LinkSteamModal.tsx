@@ -8,6 +8,7 @@ export const LinkSteamModal = () => {
   const setShowSteamLinkModal = useStore(
     (state) => state.setShowSteamLinkModal
   );
+
   return (
     <Modal
       title="Link steam account"

@@ -9,69 +9,63 @@ interface StepperProps {
 export const Stepper = ({ steps, currentStep }: StepperProps) => (
   <div className="mb-4 w-full py-3">
     <div className="flex items-center justify-center">
-      {steps.map((step, i) => (
-        <>
-          {i === 0 ? (
-            <div className="w-1/4">
-              <div className="relative mb-2">
-                <div
-                  className={`mx-auto flex h-10 w-10 items-center rounded-full bg-gray-800 text-lg text-white`}
-                >
-                  <span className="flex w-full items-center justify-center text-center text-white">
-                    {step.icon}
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-center text-xs md:text-base">
-                {step.title}
+      {steps.map((step, i) =>
+        i === 0 ? (
+          <div key={i} className="w-1/4">
+            <div className="relative mb-2">
+              <div
+                className={`mx-auto flex h-10 w-10 items-center rounded-full bg-gray-800 text-lg text-white`}
+              >
+                <span className="flex w-full items-center justify-center text-center text-white">
+                  {step.icon}
+                </span>
               </div>
             </div>
-          ) : (
-            <div className="w-1/4">
-              <div className="relative mb-2">
+
+            <div className="text-center text-xs md:text-base">{step.title}</div>
+          </div>
+        ) : (
+          <div key={i} className="w-1/4">
+            <div className="relative mb-2">
+              <div
+                className="align-center absolute flex content-center items-center align-middle"
+                style={{
+                  width: "calc(100% - 2.5rem - 1rem)",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
                 <div
-                  className="align-center absolute flex content-center items-center align-middle"
-                  style={{
-                    width: "calc(100% - 2.5rem - 1rem)",
-                    top: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
+                  className={`align-center w-full flex-1 items-center rounded ${
+                    i > currentStep ? "bg-gray-100" : "bg-gray-800"
+                  } align-middle`}
                 >
                   <div
-                    className={`align-center w-full flex-1 items-center rounded ${
-                      i > currentStep ? "bg-gray-100" : "bg-gray-800"
-                    } align-middle`}
-                  >
-                    <div
-                      className="w-0 rounded bg-gray-800 py-1"
-                      style={{
-                        width: `${i >= currentStep ? "0%" : "100%"}`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div
-                  className={`mx-auto flex h-10 w-10 items-center rounded-full ${
-                    i === currentStep || i < currentStep
-                      ? "bg-gray-800"
-                      : "bg-gray-500"
-                  } text-lg text-white`}
-                >
-                  <span className="flex w-full items-center justify-center text-center text-white">
-                    {step.icon}
-                  </span>
+                    className="w-0 rounded bg-gray-800 py-1"
+                    style={{
+                      width: `${i >= currentStep ? "0%" : "100%"}`,
+                    }}
+                  ></div>
                 </div>
               </div>
 
-              <div className="text-center text-xs md:text-base">
-                {step.title}
+              <div
+                className={`mx-auto flex h-10 w-10 items-center rounded-full ${
+                  i === currentStep || i < currentStep
+                    ? "bg-gray-800"
+                    : "bg-gray-500"
+                } text-lg text-white`}
+              >
+                <span className="flex w-full items-center justify-center text-center text-white">
+                  {step.icon}
+                </span>
               </div>
             </div>
-          )}
-        </>
-      ))}
+
+            <div className="text-center text-xs md:text-base">{step.title}</div>
+          </div>
+        )
+      )}
 
       {/* <div className="w-1/4">
         <div className="relative mb-2">

@@ -16,6 +16,7 @@
  * database, the session, etc.
  */
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { z } from "zod";
 
 import { prisma, redis as _redis } from "@anyon/db";
 import { queue } from "@anyon/queue";
@@ -129,7 +130,6 @@ import { NodeHTTPCreateContextFnOptions } from "@trpc/server/adapters/node-http"
 import { IncomingMessage } from "http";
 import superjson from "superjson";
 import ws from "ws";
-import { z } from "zod";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,

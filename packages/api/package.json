@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
-    "dev": "yarn with-env tsx watch src/wssDevServer.ts --tsconfig tsconfig.server.json ",
+    "build": "tsc --project tsconfig.server.json",
     "type-check": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
   },

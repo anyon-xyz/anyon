@@ -1,9 +1,9 @@
+import { shortenAddress } from "@anyon/common";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useUser } from "../hooks/useUser";
 import { useStore } from "../store";
-import { shortenAddress } from "@anyon/common";
 import { Modal } from "./Modal";
 
 export const ProfileModal = () => {
