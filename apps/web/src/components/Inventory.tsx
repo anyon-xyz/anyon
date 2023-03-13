@@ -17,7 +17,11 @@ export const Inventory = () => {
     setShowProfileModal: state.setShowProfileModal,
   }));
 
-  if (!csgoInventory || csgoInventory.descriptions.length === 0) {
+  if (
+    !csgoInventory ||
+    !csgoInventory.descriptions ||
+    csgoInventory.descriptions.length === 0
+  ) {
     return <div>No items found in your inventory</div>;
   }
 
