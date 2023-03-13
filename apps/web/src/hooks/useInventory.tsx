@@ -30,7 +30,7 @@ export const useQueryInventory = ({
           },
         });
       },
-      enabled: user !== undefined && user !== null && !!user.steamId,
+      enabled: !!user && !!user.steamId,
       retry: 3,
       refetchOnWindowFocus: false,
     }
