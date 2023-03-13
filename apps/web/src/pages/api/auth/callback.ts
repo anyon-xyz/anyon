@@ -52,7 +52,12 @@ export default router
 
     // update cache
     const remainingTtl = await redis.ttl(user.id);
-    await redis.set(user.id, JSON.stringify(user), "EX", remainingTtl);
+    await redis.set(
+      user.id,
+      JSON.stringify(user),
+      "EX",
+      remainingTtl > 0 ? remainingTtl : 7200
+    );
 
     res.redirect("/");
   });
