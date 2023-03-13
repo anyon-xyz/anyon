@@ -6,7 +6,7 @@ import { redis } from "@anyon/db";
 import { Server } from "socket.io";
 
 const socketio = () => {
-  const io = new Server(8000);
+  const io = new Server(Number(process.env.PORT) || 8000);
   const sub = redis();
 
   const startSub = (channel: string) =>
