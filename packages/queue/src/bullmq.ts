@@ -1,4 +1,5 @@
 import { Job, Queue, QueueEvents, Worker } from "bullmq";
+import { Redis } from "ioredis";
 import { env } from "./env";
 
 export type QueueName = "steam";
@@ -7,12 +8,12 @@ export enum JOB_NAME {
   USER_TRANSFER_TO_STEAM_ESCROW = "user-transfer-to-steam-escrow",
 }
 
+const connection = new Redis(env.REDIS_URL);
+
 export const queue = (queueName: QueueName) => {
   const _queue = () =>
     new Queue(queueName, {
-      connection: {
-        host: env.REDIS_URL,
-      },
+      connection,
     });
 
   const listenQueue = <T>(cb: (x: T) => void) => {
@@ -46,7 +47,5 @@ export const worker = <T, S>(
   cb: (job: Job<T>) => Promise<void | S>
 ) =>
   new Worker<T>(workerName, async (job) => cb(job), {
-    connection: {
-      host: env.REDIS_URL,
-    },
+    connection,
   });
