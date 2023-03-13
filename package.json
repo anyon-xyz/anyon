@@ -15,10 +15,13 @@
     "db:generate": "turbo db:generate",
     "db:push": "turbo db:push db:generate",
     "dev": "turbo dev --parallel",
+    "start": "turbo start --filter=@anyon/steam-worker",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "lint": "turbo lint && manypkg check",
     "type-check": "turbo type-check",
-    "steam:start": "NODE_ENV=development ts-node-esm --files src/server/bot/steam/index.ts"
+    "start:steam-worker": "turbo start --filter=@anyon/steam-worker",
+    "start:socketio-worker": "turbo start --filter=@anyon/socketio",
+    "start:workers": "turbo start --filter=@anyon/steam-worker --filter=@anyon/socketio"
   },
   "dependencies": {
     "@manypkg/cli": "^0.20.0",
