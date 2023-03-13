@@ -18,7 +18,7 @@
       "outputs": [".next/**", "dist/**"]
     },
     "start": {
-      "dependsOn": []
+      "dependsOn": [ ]
     },
     "lint": {},
     "clean": {
