@@ -91,5 +91,5 @@ const init = async () => {
 };
 
 init()
-  .then(() => console.log("running"))
+  .then(() => console.log("running steam worker"))
   .catch(console.error);
