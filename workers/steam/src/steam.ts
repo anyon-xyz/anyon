@@ -60,11 +60,10 @@ export const steam = async ({ pub }: { pub: Redis }) => {
   const drive = await shdwDrive();
 
   const mintSteamItem = async (offer: TradeOfferManager.TradeOffer) => {
-    const { sentItems } = await getReceivedItems(offer);
+    const { receivedItems } = await getReceivedItems(offer);
 
-    const sent = sentItems[0];
-    // TODO: change to receive
-    if (sent) {
+    const received = receivedItems[0];
+    if (received) {
       const user = await prisma.user.findUnique({
         where: {
           steamId: offer.partner.toString(),
@@ -79,30 +78,30 @@ export const steam = async ({ pub }: { pub: Redis }) => {
 
       // eslint-disable-next-line prefer-const
       let stickerImgs: string[] = [];
-      if (sent.descriptions) {
+      if (received.descriptions) {
         stickerImgs.push(
-          ...getStickerImageFromCsgoDescription(sent.descriptions)
+          ...getStickerImageFromCsgoDescription(received.descriptions)
         );
       }
 
       const imageBuffer = await genItemImage(
-        `https://api.steamapis.com/image/item/${sent.appid}/${sent.market_hash_name}`,
+        `https://api.steamapis.com/image/item/${received.appid}/${received.market_hash_name}`,
         stickerImgs
       );
 
-      const idSize = sent.id.length;
+      const idSize = received.id.length;
 
       const maxStringSize = 30 - idSize;
 
-      const name = `${sent.market_hash_name.substring(0, maxStringSize)} #${
-        sent.id
+      const name = `${received.market_hash_name.substring(0, maxStringSize)} #${
+        received.id
       }`;
 
       // upload image
       const { finalized_locations, upload_errors } = await drive.uploadFile(
         new PublicKey(SHDW_DRIVE_PK),
         {
-          name: `${sent.id} - dev.png`,
+          name: `${received.id} - dev.png`,
           file: imageBuffer,
         }
       );
@@ -118,18 +117,18 @@ export const steam = async ({ pub }: { pub: Redis }) => {
       const now = new Date();
       const time = now.setDate(now.getDate() + 7);
 
-      const wear = sent.tags.find((tag) =>
+      const wear = received.tags.find((tag) =>
         tag.internal_name.includes("WearCategory")
       );
 
       const metadata = metaplex.createMetadata(name, imageUrl, "image/png", [
         {
           trait_type: "id",
-          value: sent.id,
+          value: received.id,
         },
         {
           trait_type: "market_hash_name",
-          value: sent.market_hash_name,
+          value: received.market_hash_name,
         },
         {
           trait_type: "wear",
@@ -138,19 +137,19 @@ export const steam = async ({ pub }: { pub: Redis }) => {
         // TODO: should we keep new_assetid or current asset id?
         {
           trait_type: "assetid",
-          value: sent.assetid,
+          value: received.assetid,
         },
         {
           trait_type: "instanceid",
-          value: sent.instanceid,
+          value: received.instanceid,
         },
         {
           trait_type: "appid",
-          value: sent.appid,
+          value: received.appid,
         },
         {
           trait_type: "contextid",
-          value: sent.contextid,
+          value: received.contextid,
         },
         {
           trait_type: "locked_until",
@@ -161,7 +160,7 @@ export const steam = async ({ pub }: { pub: Redis }) => {
       // upload metadata
       const { finalized_locations: uri, upload_errors: uploadMetadataErrors } =
         await drive.uploadFile(new PublicKey(SHDW_DRIVE_PK), {
-          name: `${sent.id} - dev.json`,
+          name: `${received.id} - dev.json`,
           file: Buffer.from(JSON.stringify(metadata, null, 2)),
         });
 
@@ -198,7 +197,7 @@ export const steam = async ({ pub }: { pub: Redis }) => {
         });
 
         void pub.publish(
-          REDIS_CHANNEL_MINT_STEAM_ITEM(sent.assetid),
+          REDIS_CHANNEL_MINT_STEAM_ITEM(received.assetid),
           JSON.stringify({
             ...offer,
             nftMint: nft.address.toBase58(),
@@ -266,13 +265,13 @@ export const steam = async ({ pub }: { pub: Redis }) => {
           JSON.stringify(offer)
         );
       }
-
-      if (offer.itemsToGive[0] && offer.itemsToGive[0].assetid) {
-        void pub.publish(
-          REDIS_CHANNEL_TRANSFER_STEAM_ITEM(offer.itemsToGive[0].assetid),
-          JSON.stringify(offer)
-        );
-      }
+      // DEV
+      // if (offer.itemsToGive[0] && offer.itemsToGive[0].assetid) {
+      //   void pub.publish(
+      //     REDIS_CHANNEL_TRANSFER_STEAM_ITEM(offer.itemsToGive[0].assetid),
+      //     JSON.stringify(offer)
+      //   );
+      // }
 
       if (offer.state === TradeOfferManager.ETradeOfferState.Accepted) {
         // notify that the offer has accepted
