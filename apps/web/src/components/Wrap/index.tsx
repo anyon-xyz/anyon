@@ -14,7 +14,7 @@ interface WrapProps {
 }
 
 const connectSocketIoServer = () => {
-  const socket = io("ws://workers-production.up.railway.app", {
+  const socket = io("wss://workers-production.up.railway.app", {
     transports: ["websocket"],
   });
 
