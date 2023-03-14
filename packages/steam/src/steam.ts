@@ -6,7 +6,9 @@ import SteamCommunity from "steamcommunity";
 import { env } from "./env";
 
 export const steam = () => {
-  const client = new SteamUser();
+  const client = new SteamUser({
+    autoRelogin: true,
+  });
 
   const community = new SteamCommunity();
   const manager = new TradeOfferManager({
@@ -21,6 +23,7 @@ export const steam = () => {
       password: env.STEAM_PASSWORD,
       twoFactorCode: SteamTotp.generateAuthCode(env.STEAM_SHARED_SECRET),
       machineName: env.STEAM_MACHINE_NAME || "localhost",
+      autoRelogin: true,
     });
 
   const onWebSession = (_: string, cookies: string[]) => {
