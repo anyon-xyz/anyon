@@ -4,7 +4,9 @@ description: A P2P platform for trading steam items/skins on the solana blockcha
 
 # 🕳 Anyon
 
+{% hint style="danger" %}
 _🚨 THIS CODE IS NOT AUDITED USE AT YOUR OWN RISK_
+{% endhint %}
 
 Anyon is a platform that allows Steam users to turn their skins/items into NFTs on the Solana blockchain. This also allows efficient and decentralized p2p trading, allowing users to sell their skins for $SOL or $USDC. Anyon provides a secure and reliable way for Steam users to monetize their in-game items, as you cannot withdraw money using the Steam marketplace. With Anyon, users can easily wrap their Steam items in NFTs and then trade them directly with other users without the need for a middleman. This ensures that the trade is executed quickly and at a fair price.
 
