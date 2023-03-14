@@ -251,10 +251,14 @@ export const steam = async ({ pub }: { pub: Redis }) => {
     client.on("loggedOn", () => console.log("Logged into Steam"));
     client.on("webSession", onWebSession);
 
+    let lastWebSessionRefresh: number;
     community.on("sessionExpired", () => {
       console.log("session expired");
       console.log("logging again");
 
+      if (Date.now() - lastWebSessionRefresh < 15000) return; // Last refresh was 15 seconds ago so ignore this call
+
+      lastWebSessionRefresh = Date.now(); // Update time
       login();
     });
 
