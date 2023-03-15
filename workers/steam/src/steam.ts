@@ -246,19 +246,27 @@ export const steam = async ({ pub }: { pub: Redis }) => {
     return item;
   };
 
+  const checkSteamLogged = () =>
+    community.loggedIn(async (err, loggedIn) => {
+      if (err) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 4)); // check again in 4 min
+        checkSteamLogged();
+      } else if (!loggedIn) {
+        console.log("Steam login check: NOT LOGGED IN !");
+        login();
+      } else {
+        console.log("Steam login check : already logged in !");
+      }
+    });
+
   const initSteamWorker = (cb: () => void) => {
     login();
     client.on("loggedOn", () => console.log("Logged into Steam"));
     client.on("webSession", onWebSession);
 
-    let lastWebSessionRefresh: number;
-    community.on("sessionExpired", () => {
+    community.on("sessionExpired", (err) => {
       console.log("session expired");
-      console.log("logging again");
-
-      if (Date.now() - lastWebSessionRefresh < 15000) return; // Last refresh was 15 seconds ago so ignore this call
-
-      lastWebSessionRefresh = Date.now(); // Update time
+      if (err) console.log(err);
       login();
     });
 
@@ -291,6 +299,8 @@ export const steam = async ({ pub }: { pub: Redis }) => {
       }
     });
 
+    // TODO: change to cron
+    setInterval(checkSteamLogged, 1000 * 60 * 3);
     cb();
   };
 

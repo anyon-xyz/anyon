@@ -24,6 +24,7 @@ export const steam = () => {
       twoFactorCode: SteamTotp.generateAuthCode(env.STEAM_SHARED_SECRET),
       machineName: env.STEAM_MACHINE_NAME || "localhost",
       autoRelogin: true,
+      rememberPassword: true,
     });
 
   const onWebSession = (_: string, cookies: string[]) => {
