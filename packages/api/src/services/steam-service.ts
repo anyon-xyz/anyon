@@ -1,5 +1,6 @@
 import { request } from "@anyon/common";
 import type { Redis } from "ioredis";
+import { env } from "../env";
 
 export interface Asset {
   appid: number;
@@ -86,8 +87,7 @@ export const getCsgoInventory = async (
   }
 
   const response = await request<CsgoInventory>(
-    // TODO: generate another api key
-    `https://api.steamapis.com/steam/inventory/${steamId}/${CSGO_APP_ID}/2?api_key=_-P8rpyPpZbRDy34ec-9d5wFhOA`,
+    `https://api.steamapis.com/steam/inventory/${steamId}/${CSGO_APP_ID}/2?api_key=${env.STEAM_APIS_KEY}`,
     "GET",
     {}
   );
