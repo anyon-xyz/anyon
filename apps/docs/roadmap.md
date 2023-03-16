@@ -9,9 +9,9 @@ This document provides an overview of the Anyon project, including its current s
 ### Milestone Summary
 
 | Status | Milestone | ETA |
-| :---: | :--- | :---: | :---: |
-| ✅ | **[MVP](#mvp)** | Mar 14 2023 |
-| ⌛ | **[Beta](#beta)** | Apr 20 2023 |
+| -- | -- | -- |
+| `✅` | **[MVP](#mvp)** | Mar 14 2023 |
+| `⌛` | **[Beta](#beta)** | Apr 20 2023 |
 
 #### MVP
 
