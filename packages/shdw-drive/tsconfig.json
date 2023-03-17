@@ -8,5 +8,5 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src", "index.ts", "tsup.config.ts"]
+  "include": ["src", "index.ts", "tsup.config.ts", "trade-offer.d.ts"]
 }

@@ -15,6 +15,7 @@
     "@anyon/api": "*",
     "@anyon/auth": "*",
     "@anyon/db": "*",
+    "@anyon/env": "*",
     "@anyon/tailwind-config": "*",
     "@solana/wallet-adapter-react": "^0.15.29",
     "@solana/wallet-adapter-react-ui": "^0.9.28",

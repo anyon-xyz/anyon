@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
+    "dev": "tsc --watch",
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint .",
     "type-check": "tsc --noEmit"
