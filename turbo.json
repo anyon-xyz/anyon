@@ -18,7 +18,7 @@
       "outputs": [".next/**", "dist/**"]
     },
     "start": {
-      "dependsOn": [ ]
+      "dependsOn": ["^build"]
     },
     "lint": {},
     "clean": {
@@ -43,6 +43,7 @@
     "STEAM_IDENTITY_SECRET",
     "STEAM_MACHINE_NAME",
     "SECRET",
-    "REDIS_URL"
+    "REDIS_URL",
+    "NEXT_PUBLIC_WS_ENDPOINT"
   ]
 }
