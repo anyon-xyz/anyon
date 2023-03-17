@@ -17,8 +17,8 @@
       "dependsOn": ["^build", "^db:generate"],
       "outputs": [".next/**", "dist/**"]
     },
-    "start": {
-      "dependsOn": ["^build"]
+    "start": {  
+      "dependsOn": []
     },
     "lint": {},
     "clean": {
