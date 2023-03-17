@@ -15,7 +15,7 @@ This document provides an overview of the Anyon project, including its current s
 
 #### MVP
 
-Our MVP was submitted to the Solana hackathon to showcase our product and market. It included key features like wrapping Steam items into NFTs, listing those NFTs, and other things where you can check in [docs](./README.md)  
+Our MVP was submitted to the Solana hackathon to showcase our product and market. It included key features like wrapping Steam items into NFTs, listing those NFTs in major marketplaces, and other things that you can check in [docs](./README.md)  
 
 #### Beta
 
