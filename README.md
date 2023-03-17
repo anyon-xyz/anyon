@@ -4,6 +4,8 @@
 
 A platform for wrapping Steam skins into NFTs on the Solana blockchain
 
+Check out our [docs](https://anyon-1.gitbook.io/docs/) and [website]([website](https://github.com/anyon-xyz/anyon))
+
 ## Running locally
 
 - Create and fill `.env` file. See `.env.example`
