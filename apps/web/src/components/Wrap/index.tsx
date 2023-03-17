@@ -2,6 +2,7 @@ import { Description } from "@anyon/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GiGlock, GiHole, GiOverdrive } from "react-icons/gi";
 import { io, Socket } from "socket.io-client";
+import { env } from "~/env.mjs";
 import { useStore } from "../../store";
 import { Modal } from "../Modal";
 import { Stepper } from "../Stepper";
@@ -14,7 +15,7 @@ interface WrapProps {
 }
 
 const connectSocketIoServer = () => {
-  const socket = io("wss://workers-production.up.railway.app", {
+  const socket = io(env.NEXT_PUBLIC_WS_ENDPOINT, {
     transports: ["websocket"],
   });
 
