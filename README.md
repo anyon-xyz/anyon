@@ -10,9 +10,9 @@ A platform for wrapping Steam skins into NFTs on the Solana blockchain
 
 ```sh
 $ docker-compose up --build -d
+$ yarn build
 $ yarn dev
 ```
-
 
 ## How it will works
   - Wrapping - The user will transfer their item to our Steam escrow and then mint a new NFT for that item
