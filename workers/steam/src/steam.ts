@@ -213,8 +213,13 @@ export const steam = async ({ pub }: { pub: Redis }) => {
     }
   };
 
-  const onOfferAccepted = (_offer: TradeOfferManager.TradeOffer) => {
-    // for now it will only be possible with 1 item
+  const onOfferAccepted = async (offer: TradeOfferManager.TradeOffer) => {
+    await prisma.wrappedItem.update({
+      where: { offerId: offer.id },
+      data: {
+        offerAcepted: true,
+      },
+    });
 
     console.log("on offer accepted");
   };

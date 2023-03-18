@@ -41,6 +41,7 @@ model WrappedItem {
     mint            String? @unique
     signature       String? @unique
     offerId         String? @unique
+    offerAcepted    Boolean @default(false)
     claimed         Boolean @default(false)
     declined        Boolean? @default(false)
     escrowEnds      DateTime?
