@@ -22,7 +22,7 @@ export const TransferItemToSteamEscrow = ({
   onNext,
   socket,
 }: TransferItemToSteamEscrowProps) => {
-  const [sentTradeOffer, setSentTradeOffer] = useState<boolean>(false);
+  const [sendingTradeOffer, setSendingTradeOffer] = useState<boolean>(false);
   const [tradeErrorMsg, setTradeErrorMsg] = useState<string>("");
   const [tradeWarnMsg, setTradeWarnMsg] = useState<string>("");
   const [isWaitingTradeConfirmation, setIsWaitingTradeConfirmation] =
@@ -30,7 +30,7 @@ export const TransferItemToSteamEscrow = ({
 
   const { mutate: onWrap } = api.steam.wrapItem.useMutation({
     onSuccess(data) {
-      setSentTradeOffer(true);
+      setSendingTradeOffer(true);
       toast(data.message, {
         icon: "✅",
         style: {
@@ -81,7 +81,7 @@ export const TransferItemToSteamEscrow = ({
             }
             case 7: {
               setIsWaitingTradeConfirmation(false);
-              setSentTradeOffer(false);
+              setSendingTradeOffer(false);
               setTradeErrorMsg(
                 "You declined the trade offer, send again if you wanna proceed"
               );
@@ -90,7 +90,7 @@ export const TransferItemToSteamEscrow = ({
             }
             case 11: {
               setIsWaitingTradeConfirmation(false);
-              setSentTradeOffer(false);
+              setSendingTradeOffer(false);
               setTradeWarnMsg(
                 `The trade is in steam escrow because you don't have steam guard active for the 7 days.\nEscrow ends in ${new Date(
                   data.escrowEnds
@@ -128,7 +128,7 @@ export const TransferItemToSteamEscrow = ({
         </div>
       ) : (
         <>
-          {sentTradeOffer ? (
+          {sendingTradeOffer ? (
             <div className="mt-4 flex justify-center items-center flex-col">
               <p>Sending trade offer...</p>
 
