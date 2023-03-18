@@ -68,19 +68,36 @@ export const steamRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const wrapItem = await ctx.prisma.wrappedItem.create({
-        data: {
+      // recover wrap item if user has tried before
+      // just in case the user started the wrap but canceled before accepting the trade offer
+      let wrapItem = await ctx.prisma.wrappedItem.findFirst({
+        where: {
+          assetId: input.assetid,
           appId: input.appid,
           classId: input.classid,
-          assetId: input.assetid,
           contextId: input.contextid,
-          inEscrow: false,
           instanceId: input.instanceid,
-          marketHashName: input.marketHashName,
           userId: ctx.user.id,
-          steamIconUrl: input.steamIconurl,
+          claimed: false,
+          declined: false,
         },
       });
+
+      if (!wrapItem) {
+        wrapItem = await ctx.prisma.wrappedItem.create({
+          data: {
+            appId: input.appid,
+            classId: input.classid,
+            assetId: input.assetid,
+            contextId: input.contextid,
+            inEscrow: false,
+            instanceId: input.instanceid,
+            marketHashName: input.marketHashName,
+            userId: ctx.user.id,
+            steamIconUrl: input.steamIconurl,
+          },
+        });
+      }
 
       await ctx.queue.steam.add(
         JOB_NAME.USER_TRANSFER_TO_STEAM_ESCROW,
