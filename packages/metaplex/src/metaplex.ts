@@ -4,11 +4,7 @@ import { keypairIdentity, Metaplex } from "@metaplex-foundation/js";
 import { Keypair, PublicKey } from "@solana/web3.js";
 
 export const metaplex = () => {
-  // TODO: move to .env
-  const connection = getConnection(
-    "devnet",
-    "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
-  );
+  const connection = getConnection("mainnet-beta");
   const metaplex = new Metaplex(connection);
 
   const getKeypair = () => {
@@ -41,7 +37,7 @@ export const metaplex = () => {
     return {
       name,
       symbol: "ANYON",
-      description: "g3x",
+      description: "",
       seller_fee_basis_points: 200,
       image,
       external_url: "https://anyon.io/",

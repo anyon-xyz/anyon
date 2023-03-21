@@ -1,4 +1,5 @@
 import { Cluster, Connection } from "@solana/web3.js";
+import { env } from "./env";
 
 export const getConnection = (
   cluster: Cluster,
@@ -11,7 +12,8 @@ export const getConnection = (
   switch (cluster) {
     case "mainnet-beta": {
       const connection = new Connection(
-        process.env.MAINNET_RPC_URL ?? "https://api.mainnet-beta.solana.com",
+        env.NEXT_PUBLIC_MAINNET_RPC_URL ??
+          "https://api.mainnet-beta.solana.com",
         "max"
       );
       return connection;
