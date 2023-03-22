@@ -1,9 +1,9 @@
 import {
-  CSGO_COLLECTION_PK_DEVNET,
+  CSGO_COLLECTION_PK_MAINNET,
   getStickerImageFromCsgoDescription,
   REDIS_CHANNEL_MINT_STEAM_ITEM,
   REDIS_CHANNEL_TRANSFER_STEAM_ITEM,
-  SHDW_DRIVE_PK,
+  SHDW_DRIVE_PK_MAINNET,
 } from "@anyon/common";
 import { prisma } from "@anyon/db";
 import { metaplex as _metaplex } from "@anyon/metaplex";
@@ -99,9 +99,9 @@ export const steam = async ({ pub }: { pub: Redis }) => {
 
       // upload image
       const { finalized_locations, upload_errors } = await drive.uploadFile(
-        new PublicKey(SHDW_DRIVE_PK),
+        new PublicKey(SHDW_DRIVE_PK_MAINNET),
         {
-          name: `${received.id} - dev.png`,
+          name: `${received.id}.png`,
           file: imageBuffer,
         }
       );
@@ -159,8 +159,8 @@ export const steam = async ({ pub }: { pub: Redis }) => {
 
       // upload metadata
       const { finalized_locations: uri, upload_errors: uploadMetadataErrors } =
-        await drive.uploadFile(new PublicKey(SHDW_DRIVE_PK), {
-          name: `${received.id} - dev.json`,
+        await drive.uploadFile(new PublicKey(SHDW_DRIVE_PK_MAINNET), {
+          name: `${received.id}.json`,
           file: Buffer.from(JSON.stringify(metadata, null, 2)),
         });
 
@@ -177,7 +177,7 @@ export const steam = async ({ pub }: { pub: Redis }) => {
         const { nft, response } = await metaplex.mint(
           name,
           uriUrl,
-          new PublicKey(CSGO_COLLECTION_PK_DEVNET)
+          new PublicKey(CSGO_COLLECTION_PK_MAINNET)
         );
 
         const item = await prisma.wrappedItem.findUniqueOrThrow({
@@ -307,7 +307,6 @@ export const steam = async ({ pub }: { pub: Redis }) => {
       }
     });
 
-    // TODO: change to cron
     cb();
   };
 

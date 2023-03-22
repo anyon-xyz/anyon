@@ -1,4 +1,3 @@
-import { getEnv } from "@anyon/env";
 import * as anchor from "@project-serum/anchor";
 import {
   createAssociatedTokenAccountInstruction,
@@ -18,6 +17,7 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import b58 from "bs58";
+import { env } from "./env";
 import { sleep } from "./sleep";
 
 export const getUnixTs = () => {
@@ -199,8 +199,6 @@ export const getSignedTokenTransferTx = async (
   mintAddress: string,
   to: string
 ) => {
-  const env = getEnv(["CSGO_AUTHORITY_COLLECTION_SECRET"]);
-
   const mint = new PublicKey(mintAddress);
   const destPublicKey = new PublicKey(to);
 

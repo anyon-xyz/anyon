@@ -139,10 +139,7 @@ export const steamRouter = createTRPCRouter({
         },
       });
 
-      const connection = getConnection(
-        "devnet",
-        "https://rpc-devnet.helius.xyz/?api-key=3c8d51cb-460e-459b-929d-edfccc126099"
-      );
+      const connection = getConnection("mainnet-beta");
 
       if (!item.mint) {
         throw new Error("Item not minted yet");

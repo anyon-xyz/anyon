@@ -31,6 +31,7 @@ export const server = z.object({
 export const client = z.object({
   // NEXT_PUBLIC_CLIENTVAR: z.string(),
   NEXT_PUBLIC_WS_ENDPOINT: z.string(),
+  NEXT_PUBLIC_MAINNET_RPC_URL: z.string().optional(),
 });
 
 /**
@@ -59,6 +60,7 @@ const processEnv: Record<
   SHDW_DRIVE_AUTHORITY: process.env.SHDW_DRIVE_AUTHORITY,
 
   NEXT_PUBLIC_WS_ENDPOINT: process.env.NEXT_PUBLIC_WS_ENDPOINT,
+  NEXT_PUBLIC_MAINNET_RPC_URL: process.env.NEXT_PUBLIC_MAINNET_RPC_URL,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

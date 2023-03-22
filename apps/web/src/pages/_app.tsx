@@ -15,14 +15,16 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 require("../styles/globals.css");
 
 import { Toaster } from "react-hot-toast";
+import { env } from "~/env.mjs";
 import { api } from "~/utils/api";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
-  const network = WalletAdapterNetwork.Devnet;
+  const network = WalletAdapterNetwork.Mainnet;
 
-  // You can also provide a custom RPC endpoint
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
+  const endpoint = useMemo(
+    () => env.NEXT_PUBLIC_MAINNET_RPC_URL || clusterApiUrl(network),
+    [network]
+  );
   const wallets = useMemo(() => [new SolflareWalletAdapter()], []);
 
   return (
