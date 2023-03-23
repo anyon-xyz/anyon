@@ -6,9 +6,11 @@ import { redis } from "@anyon/db";
 import { Server } from "socket.io";
 
 const socketio = () => {
-  const io = new Server(Number(process.env.PORT) || 8000);
+  const PORT = Number(process.env.PORT) || 8000;
+  const io = new Server(PORT);
   const sub = redis();
 
+  console.log(`Running socketio server at port ${PORT}`);
   const startSub = (channel: string) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sub.subscribe(channel, (err: any, count: any) => {
@@ -65,8 +67,6 @@ const socketio = () => {
       void sub.unsubscribe(REDIS_CHANNEL_MINT_STEAM_ITEM(assetid));
     });
   });
-
-  console.log("Running socketio server");
 };
 
 socketio();
