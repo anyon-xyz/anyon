@@ -1,6 +1,6 @@
 import { getConnection } from "@anyon/common";
 import { getEnv } from "@anyon/env";
-import { keypairIdentity, Metaplex } from "@metaplex-foundation/js";
+import { keypairIdentity, Metadata, Metaplex } from "@metaplex-foundation/js";
 import { Keypair, PublicKey } from "@solana/web3.js";
 
 export const metaplex = () => {
@@ -72,10 +72,44 @@ export const metaplex = () => {
     };
   };
 
+  const getBurnTx = (mint: PublicKey) => {
+    const tx = metaplex.nfts().builders().delete({
+      mintAddress: mint,
+    });
+    return tx;
+  };
+
+  const getNftsByCreator = async (creator: PublicKey) => {
+    const nfts = await metaplex.nfts().findAllByCreator({
+      creator,
+    });
+
+    return nfts;
+  };
+
+  const getAllNftsByUserPk = async (user: PublicKey) => {
+    const nfts = await metaplex.nfts().findAllByOwner({
+      owner: new PublicKey(user),
+    });
+
+    return nfts;
+  };
+
+  const getNftByMetadata = async (metadata: Metadata) => {
+    const nft = await metaplex.nfts().load({
+      metadata,
+    });
+    return nft;
+  };
+
   return {
     metaplex,
     setSecretKey,
     mint,
     createMetadata,
+    getBurnTx,
+    getNftsByCreator,
+    getAllNftsByUserPk,
+    getNftByMetadata,
   };
 };

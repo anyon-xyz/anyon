@@ -82,7 +82,7 @@ export const steamRouter = createTRPCRouter({
         },
       });
 
-      await ctx.queue.steam.add(
+      await ctx.queue.wrap.add(
         JOB_NAME.USER_TRANSFER_TO_STEAM_ESCROW,
         {
           userId: ctx.user.id,

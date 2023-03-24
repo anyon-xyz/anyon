@@ -2,7 +2,7 @@ import { Job, Queue, QueueEvents, Worker } from "bullmq";
 import { Redis } from "ioredis";
 import { env } from "./env";
 
-export type QueueName = "steam";
+export type QueueName = "wrap" | "unwrap";
 
 export enum JOB_NAME {
   USER_TRANSFER_TO_STEAM_ESCROW = "user-transfer-to-steam-escrow",

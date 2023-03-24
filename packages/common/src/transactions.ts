@@ -265,3 +265,5 @@ export const txFromB58 = (tx: string): Transaction =>
 
 export const txToB58 = (tx: Transaction) =>
   b58.encode(tx.serialize({ requireAllSignatures: false }));
+
+export const toPk = (str: string) => new PublicKey(str);

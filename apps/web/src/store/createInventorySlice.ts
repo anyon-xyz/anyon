@@ -6,6 +6,8 @@ export interface InventorySlice {
   setCsgoInventory: (csgoInventory: CsgoInventory) => void;
   openWrapModal: boolean;
   setOpenWrapModal: (openWrapModal: boolean) => void;
+  openUnwrapModal: boolean;
+  setOpenUnwrapModal: (openUnwrapModal: boolean) => void;
   selectItemToWrap: Description | null;
   setSelectItemToWrap: (item: Description | null) => void;
   getItemAssetByClassId: (
@@ -24,7 +26,10 @@ export const createInventorySlice: StateCreator<InventorySlice> = (
     set((state) => ({ ...state, csgoInventory })),
   openWrapModal: false,
   setOpenWrapModal: (openWrapModal) =>
-    set((state) => ({ ...state, openWrapModal: openWrapModal })),
+    set((state) => ({ ...state, openWrapModal })),
+  openUnwrapModal: false,
+  setOpenUnwrapModal: (openUnwrapModal) =>
+    set((state) => ({ ...state, openUnwrapModal })),
   selectItemToWrap: null,
   setSelectItemToWrap: (item) =>
     set((state) => ({ ...state, selectItemToWrap: item })),
