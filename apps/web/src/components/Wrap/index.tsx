@@ -73,8 +73,6 @@ export const Wrap = ({ item }: WrapProps) => {
     };
   }, [asset.assetid]);
 
-  console.log(step);
-
   const wrapFlow = [
     <TransferItemToSteamEscrow
       asset={asset}
