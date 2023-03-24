@@ -6,11 +6,8 @@ import { env } from "~/env.mjs";
 import { useStore } from "../../store";
 import { Modal } from "../Modal";
 import { Stepper } from "../Stepper";
-import { Claim } from "./Claim";
-import { MintNft } from "./MintNft";
-import { TransferItemToSteamEscrow } from "./TransferItemToSteamEscrow";
 
-interface WrapProps {
+interface UnwrapProps {
   item: Description;
 }
 
@@ -24,18 +21,13 @@ const connectSocketIoServer = () => {
   return socket;
 };
 
-export const Wrap = ({ item }: WrapProps) => {
-  const {
-    openWrapModal,
-    setOpenWrapModal,
-    getItemAssetByClassId,
-    setSelectItemToWrap,
-  } = useStore((state) => ({
-    openWrapModal: state.openWrapModal,
-    getItemAssetByClassId: state.getItemAssetByClassId,
-    setOpenWrapModal: state.setOpenWrapModal,
-    setSelectItemToWrap: state.setSelectItemToWrap,
-  }));
+export const Unwrap = ({ item }: UnwrapProps) => {
+  const { getItemAssetByClassId, openUnwrapModal, setOpenUnwrapModal } =
+    useStore((state) => ({
+      openUnwrapModal: state.openUnwrapModal,
+      setOpenUnwrapModal: state.setOpenUnwrapModal,
+      getItemAssetByClassId: state.getItemAssetByClassId,
+    }));
 
   const [step, setStep] = useState<number>(0);
   const asset = useMemo(
@@ -73,24 +65,7 @@ export const Wrap = ({ item }: WrapProps) => {
     };
   }, [asset.assetid]);
 
-  const wrapFlow = [
-    <TransferItemToSteamEscrow
-      asset={asset}
-      key={item.classid}
-      item={item}
-      socket={socketRef.current}
-      onNext={() => nextStep()}
-      onPrev={() => prevStep()}
-    />,
-    <MintNft
-      item={item}
-      socket={socketRef.current}
-      asset={asset}
-      key={item.classid}
-      onNext={() => nextStep()}
-    />,
-    <Claim item={item} asset={asset} key={item.classid} />,
-  ];
+  const unwrapFlow = [<>unwrap</>];
 
   const steps = [
     {
@@ -110,20 +85,19 @@ export const Wrap = ({ item }: WrapProps) => {
   return (
     <Modal
       className="w-full max-w-xl shadow-lg shadow-red-500/40"
-      showModal={openWrapModal}
-      setShowModal={setOpenWrapModal}
-      title="Wrap skin into Solana NFT"
-      description="Complete the steps below to wrap your skin into NFT"
+      showModal={openUnwrapModal}
+      setShowModal={setOpenUnwrapModal}
+      title="Unwrap NFT"
+      description="Complete the steps below to get the item on your Steam account"
       onClose={() => {
         setStep(0);
-        setSelectItemToWrap(null);
       }}
       onSaveSubmit={undefined}
     >
       <div className="flex h-auto min-h-[540px] flex-col items-center  p-5">
         <Stepper currentStep={step} steps={steps} />
         <div className="flex w-full flex-col items-center px-4">
-          {wrapFlow[step]}
+          {unwrapFlow[step]}
         </div>
       </div>
     </Modal>

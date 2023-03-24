@@ -56,9 +56,15 @@ export const Header = () => {
         >
           Items Wrapped
         </Link>
-        <a className="cursor-not-allowed text-sm font-medium text-gray-500 sm:text-base">
-          Inventory
-        </a>
+
+        <Link
+          href={"/my-nfts"}
+          className={`text-sm font-medium hover:underline sm:text-base hover:text-white ${
+            currentRoute === "/my-nfts" ? "text-white" : "text-gray-400"
+          }`}
+        >
+          My Nfts
+        </Link>
       </div>
 
       {!user && !connected ? (

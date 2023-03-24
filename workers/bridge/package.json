@@ -1,5 +1,5 @@
 {
-  "name": "@anyon/steam-worker",
+  "name": "@anyon/bridge",
   "version": "0.1.0",
   "license": "MIT",
   "main": "./index.ts",

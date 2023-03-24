@@ -38,14 +38,14 @@ const redis = _redis();
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
-  const steamQueue = queue("steam");
+  const wrapQueue = queue("wrap");
 
   return {
     user: opts.user,
     prisma,
     redis,
     queue: {
-      steam: steamQueue.queue(),
+      wrap: wrapQueue.queue(),
     },
   };
 };
