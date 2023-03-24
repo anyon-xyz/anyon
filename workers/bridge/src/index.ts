@@ -11,7 +11,7 @@ interface SteamWorker {
   item: WrappedItem;
 }
 
-const init = async () => {
+const bridge = async () => {
   const pub = new Redis(env.REDIS_URL);
 
   const steam = await _steam({ pub });
@@ -40,7 +40,7 @@ const init = async () => {
 
   console.log("listening bullmq jobs");
   // proccess jobs from bullmq
-  worker<SteamWorker, { offerId: string }>("steam", async (job) => {
+  worker<SteamWorker, { offerId: string }>("wrap", async (job) => {
     if (job.name === JOB_NAME.USER_TRANSFER_TO_STEAM_ESCROW) {
       const user = await prisma.user.findUnique({
         where: {
@@ -81,12 +81,12 @@ const init = async () => {
       return {
         offerId: offer.id,
       };
+    } else {
+      throw new UnrecoverableError(`Unknown job name ${job.name}`);
     }
-
-    return;
   });
 };
 
-init()
-  .then(() => console.log("running steam worker"))
+bridge()
+  .then(() => console.log("running bridge worker"))
   .catch(console.error);
