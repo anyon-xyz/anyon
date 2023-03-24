@@ -15,13 +15,13 @@
     "db:generate": "turbo db:generate",
     "db:push": "turbo db:push db:generate",
     "dev": "turbo dev --parallel",
-    "start": "turbo start --filter=@anyon/steam-worker",
+    "start": "turbo start --filter=@anyon/bridge",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "lint": "turbo lint && manypkg check",
     "type-check": "turbo type-check",
-    "start:steam-worker": "turbo start --filter=@anyon/steam-worker",
+    "start:bridge": "turbo start --filter=@anyon/bridge",
     "start:socketio-worker": "turbo start --filter=@anyon/socketio",
-    "start:workers": "turbo start --filter=@anyon/steam-worker --filter=@anyon/socketio"
+    "start:workers": "turbo start --filter=@anyon/bridge --filter=@anyon/socketio"
   },
   "dependencies": {
     "@manypkg/cli": "^0.20.0",
